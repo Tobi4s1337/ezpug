@@ -1,0 +1,10 @@
+{
+  "registration": {
+    "SUBJECT": "Bitte bestätige deine Email - EZPUG",
+    "MESSAGE": "<p>Hallo %s.</p> <p>Willkommen! Bitte klicke auf den folgenden Link um deine Email zu bestätigen:</p> <p>%s/verify/%s</p> <p>Dankeschön.</p>"
+  },
+  "forgotPassword": {
+    "SUBJECT": "Passwort zurücksetzen - EZPUG",
+    "MESSAGE": "<p>Um das Passwort für den User %s zurückzusetzen klicke bitte auf den folgenden Link:</p> <p>%s/reset/%s</p> <p>Wenn es ein Fehler war kannst du diese Nachricht ignorieren.</p> <p>Dankeschön.</p>"
+  }
+}
