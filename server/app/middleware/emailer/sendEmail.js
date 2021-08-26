@@ -12,8 +12,8 @@ const sendEmail = async (data = {}, callback) => {
       // eslint-disable-next-line camelcase
       api_key: process.env.EMAIL_SMTP_API_MAILGUN,
       domain: process.env.EMAIL_SMTP_DOMAIN_MAILGUN
-    }
-    // host: 'api.eu.mailgun.net' // THIS IS NEEDED WHEN USING EUROPEAN SERVERS
+    },
+    host: 'api.eu.mailgun.net' // THIS IS NEEDED WHEN USING EUROPEAN SERVERS
   }
   const transporter = nodemailer.createTransport(mg(auth))
   const mailOptions = {
