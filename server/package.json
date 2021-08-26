@@ -8,7 +8,7 @@
     "url": "git+https://github.com/Tobi4s1337/ezpug.git"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=production pm2 start server.js",
+    "start": "cross-env NODE_ENV=production pm2 start server.js -n ezpug-production",
     "mocha": "nyc mocha --timeout=5000 --exit",
     "dev": "cross-env NODE_ENV=development nodemon --inspect=9230 server.js",
     "fresh": "npm run clean && npm run seed",
