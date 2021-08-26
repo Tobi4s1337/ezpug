@@ -4,5 +4,8 @@ module.exports = {
     i18n: {
       enableInSFC: true
     }
+  },
+  devServer: {
+    disableHostCheck: true
   }
 }
