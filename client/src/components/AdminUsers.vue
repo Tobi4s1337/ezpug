@@ -197,23 +197,6 @@
                             ></v-text-field>
                           </ValidationProvider>
                         </v-flex>
-                        <v-flex xs12 md6>
-                          <ValidationProvider
-                            rules="required"
-                            v-slot="{ errors }"
-                          >
-                            <v-text-field
-                              id="phone"
-                              name="phone"
-                              type="tel"
-                              v-model="editedItem.phone"
-                              :label="$t('users.headers.PHONE')"
-                              :error="errors.length > 0"
-                              :error-messages="errors[0]"
-                              autocomplete="off"
-                            ></v-text-field>
-                          </ValidationProvider>
-                        </v-flex>
                       </v-layout>
                     </v-container>
                   </v-card-text>
@@ -248,7 +231,6 @@
         <td>{{ roleName(props.item.role) }}</td>
         <td v-html="trueFalse(props.item.verified)"></td>
         <td>{{ props.item.country }}</td>
-        <td>{{ props.item.phone }}</td>
       </template>
       <template v-slot:[`item._id`]="{ item }">
         <td class="fill-height px-0">
@@ -326,7 +308,7 @@ export default {
       pagination: {},
       editedItem: {},
       defaultItem: {},
-      fieldsToSearch: ['name', 'email', 'role', 'country', 'phone']
+      fieldsToSearch: ['name', 'email', 'role', 'country']
     }
   },
   computed: {
@@ -378,12 +360,6 @@ export default {
           align: 'left',
           sortable: true,
           value: 'country'
-        },
-        {
-          text: this.$i18n.t('users.headers.PHONE'),
-          align: 'left',
-          sortable: true,
-          value: 'phone'
         },
         {
           text: this.$i18n.t('common.CREATED'),
@@ -515,7 +491,6 @@ export default {
             email: this.editedItem.email,
             password: this.editedItem.password,
             role: this.editedItem.role,
-            phone: this.editedItem.phone,
             country: this.editedItem.country
           })
           await this.getUsers(

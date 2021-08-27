@@ -11,7 +11,6 @@ module.exports = [
     verified: true,
     verification: '3d6e072c-0eaf-4239-bb5e-495e6486148f',
     country: 'Colombia',
-    phone: '123123',
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   },
@@ -24,7 +23,6 @@ module.exports = [
     verified: true,
     verification: '3d6e072c-0eaf-4239-bb5e-495e6486148d',
     country: 'Colombia',
-    phone: '123123',
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   }

@@ -144,22 +144,6 @@
                 <v-flex xs12 md4>
                   <ValidationProvider rules="required" v-slot="{ errors }">
                     <v-text-field
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      :label="$t('myProfile.PHONE')"
-                      clear-icon="mdi-close"
-                      clearable
-                      v-model="phone"
-                      :error="errors.length > 0"
-                      :error-messages="errors[0]"
-                      autocomplete="off"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-flex>
-                <v-flex xs12 md4>
-                  <ValidationProvider rules="required" v-slot="{ errors }">
-                    <v-text-field
                       id="country"
                       name="country"
                       type="text"
@@ -224,18 +208,6 @@ export default {
     email() {
       return this.$store.state.profile.profile.email
     },
-    phone: {
-      get() {
-        return this.$store.state.profile.profile.phone
-      },
-      set(value) {
-        const data = {
-          key: 'phone',
-          value
-        }
-        this.addProfileData(data)
-      }
-    },
     country: {
       get() {
         return this.$store.state.profile.profile.country
@@ -259,7 +231,6 @@ export default {
     async submit() {
       await this.saveProfile({
         name: this.name,
-        phone: this.phone,
         country: this.countr
       })
     },

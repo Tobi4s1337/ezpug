@@ -36,9 +36,6 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    phone: {
-      type: String
-    },
     country: {
       type: String
     },

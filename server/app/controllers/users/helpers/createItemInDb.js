@@ -11,7 +11,6 @@ const createItemInDb = ({
   email = '',
   password = '',
   role = '',
-  phone = '',
   country = ''
 }) => {
   return new Promise((resolve, reject) => {
@@ -20,7 +19,6 @@ const createItemInDb = ({
       email,
       password,
       role,
-      phone,
       country,
       verification: uuid.v4()
     })

@@ -85,8 +85,7 @@
       "EMAIL": "E-mail",
       "ROLE": "Role",
       "VERIFIED": "Verified",
-      "COUNTRY": "Country",
-      "PHONE": "Phone"
+      "COUNTRY": "Country"
     },
     "PASSWORD": "Password",
     "CONFIRM_PASSWORD": "Confirm Password"
@@ -156,7 +155,6 @@
     "PASSWORD_CHANGED": "Password changed successfully",
     "NAME": "Name",
     "EMAIL": "E-mail",
-    "PHONE": "Phone",
     "NO_RESULTS_FOUND": "No results found",
     "COUNTRY": "Country",
     "SAVE": "Save",
