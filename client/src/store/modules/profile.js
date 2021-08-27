@@ -78,8 +78,6 @@ const mutations = {
     state.profile.email = data.email
     state.profile.phone = data.phone
     state.profile.country = data.country
-    state.profile.urlTwitter = data.urlTwitter
-    state.profile.urlGitHub = data.urlGitHub
   },
   [types.ADD_PROFILE_DATA](state, data) {
     switch (data.key) {
@@ -91,12 +89,6 @@ const mutations = {
         break
       case 'country':
         state.profile.country = data.value
-        break
-      case 'urlTwitter':
-        state.profile.urlTwitter = data.value
-        break
-      case 'urlGitHub':
-        state.profile.urlGitHub = data.value
         break
       default:
         break
@@ -110,9 +102,7 @@ const state = {
     name: '',
     email: '',
     phone: '',
-    country: '',
-    urlTwitter: '',
-    urlGitHub: ''
+    country: ''
   }
 }
 

@@ -171,34 +171,6 @@
                     ></v-text-field>
                   </ValidationProvider>
                 </v-flex>
-                <v-flex xs12 md6>
-                  <ValidationProvider rules="url" v-slot="{ errors }">
-                    <v-text-field
-                      id="urlTwitter"
-                      name="urlTwitter"
-                      type="url"
-                      label="Twitter"
-                      v-model="urlTwitter"
-                      :error="errors.length > 0"
-                      :error-messages="errors[0]"
-                      autocomplete="off"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-flex>
-                <v-flex xs12 md6>
-                  <ValidationProvider rules="url" v-slot="{ errors }">
-                    <v-text-field
-                      id="urlGitHub"
-                      name="urlGitHub"
-                      type="url"
-                      label="GitHub"
-                      v-model="urlGitHub"
-                      :error="errors.length > 0"
-                      :error-messages="errors[0]"
-                      autocomplete="off"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-flex>
                 <v-flex text-xs-center mt-5>
                   <SubmitButton
                     :buttonText="$t('myProfile.SAVE')"
@@ -275,30 +247,6 @@ export default {
         }
         this.addProfileData(data)
       }
-    },
-    urlTwitter: {
-      get() {
-        return this.$store.state.profile.profile.urlTwitter
-      },
-      set(value) {
-        const data = {
-          key: 'urlTwitter',
-          value
-        }
-        this.addProfileData(data)
-      }
-    },
-    urlGitHub: {
-      get() {
-        return this.$store.state.profile.profile.urlGitHub
-      },
-      set(value) {
-        const data = {
-          key: 'urlGitHub',
-          value
-        }
-        this.addProfileData(data)
-      }
     }
   },
   methods: {
@@ -312,9 +260,7 @@ export default {
       await this.saveProfile({
         name: this.name,
         phone: this.phone,
-        country: this.country,
-        urlTwitter: this.urlTwitter,
-        urlGitHub: this.urlGitHub
+        country: this.countr
       })
     },
     close() {
