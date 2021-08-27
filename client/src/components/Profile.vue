@@ -141,20 +141,6 @@
                     ></v-text-field>
                   </ValidationProvider>
                 </v-flex>
-                <v-flex xs12 md4>
-                  <ValidationProvider rules="required" v-slot="{ errors }">
-                    <v-text-field
-                      id="country"
-                      name="country"
-                      type="text"
-                      :label="$t('myProfile.COUNTRY')"
-                      v-model="country"
-                      :error="errors.length > 0"
-                      :error-messages="errors[0]"
-                      autocomplete="off"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-flex>
                 <v-flex text-xs-center mt-5>
                   <SubmitButton
                     :buttonText="$t('myProfile.SAVE')"
@@ -207,18 +193,6 @@ export default {
     },
     email() {
       return this.$store.state.profile.profile.email
-    },
-    country: {
-      get() {
-        return this.$store.state.profile.profile.country
-      },
-      set(value) {
-        const data = {
-          key: 'country',
-          value
-        }
-        this.addProfileData(data)
-      }
     }
   },
   methods: {
@@ -230,8 +204,7 @@ export default {
     ]),
     async submit() {
       await this.saveProfile({
-        name: this.name,
-        country: this.countr
+        name: this.name
       })
     },
     close() {

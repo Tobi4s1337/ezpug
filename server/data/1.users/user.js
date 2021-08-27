@@ -10,7 +10,6 @@ module.exports = [
     role: 'admin',
     verified: true,
     verification: '3d6e072c-0eaf-4239-bb5e-495e6486148f',
-    country: 'Colombia',
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   },
@@ -22,7 +21,6 @@ module.exports = [
     role: 'user',
     verified: true,
     verification: '3d6e072c-0eaf-4239-bb5e-495e6486148d',
-    country: 'Colombia',
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   }

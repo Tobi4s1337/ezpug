@@ -181,22 +181,6 @@
                             ></v-select>
                           </ValidationProvider>
                         </v-flex>
-                        <v-flex xs12 md6>
-                          <ValidationProvider
-                            rules="required"
-                            v-slot="{ errors }"
-                          >
-                            <v-text-field
-                              id="country"
-                              name="country"
-                              v-model="editedItem.country"
-                              :label="$t('users.headers.COUNTRY')"
-                              :error="errors.length > 0"
-                              :error-messages="errors[0]"
-                              autocomplete="off"
-                            ></v-text-field>
-                          </ValidationProvider>
-                        </v-flex>
                       </v-layout>
                     </v-container>
                   </v-card-text>
@@ -230,7 +214,6 @@
         <td>{{ props.item.email }}</td>
         <td>{{ roleName(props.item.role) }}</td>
         <td v-html="trueFalse(props.item.verified)"></td>
-        <td>{{ props.item.country }}</td>
       </template>
       <template v-slot:[`item._id`]="{ item }">
         <td class="fill-height px-0">
@@ -308,7 +291,7 @@ export default {
       pagination: {},
       editedItem: {},
       defaultItem: {},
-      fieldsToSearch: ['name', 'email', 'role', 'country']
+      fieldsToSearch: ['name', 'email', 'role']
     }
   },
   computed: {
@@ -354,12 +337,6 @@ export default {
           align: 'left',
           sortable: true,
           value: 'verified'
-        },
-        {
-          text: this.$i18n.t('users.headers.COUNTRY'),
-          align: 'left',
-          sortable: true,
-          value: 'country'
         },
         {
           text: this.$i18n.t('common.CREATED'),
@@ -490,8 +467,7 @@ export default {
             name: this.editedItem.name,
             email: this.editedItem.email,
             password: this.editedItem.password,
-            role: this.editedItem.role,
-            country: this.editedItem.country
+            role: this.editedItem.role
           })
           await this.getUsers(
             buildPayloadPagination(this.pagination, this.buildSearch())

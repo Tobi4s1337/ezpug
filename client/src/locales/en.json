@@ -84,8 +84,7 @@
       "NAME": "Name",
       "EMAIL": "E-mail",
       "ROLE": "Role",
-      "VERIFIED": "Verified",
-      "COUNTRY": "Country"
+      "VERIFIED": "Verified"
     },
     "PASSWORD": "Password",
     "CONFIRM_PASSWORD": "Confirm Password"
@@ -156,7 +155,6 @@
     "NAME": "Name",
     "EMAIL": "E-mail",
     "NO_RESULTS_FOUND": "No results found",
-    "COUNTRY": "Country",
     "SAVE": "Save",
     "PROFILE_SAVED_SUCCESSFULLY": "Profile saved successfuly"
   }

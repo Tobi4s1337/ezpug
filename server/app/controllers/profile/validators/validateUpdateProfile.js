@@ -12,13 +12,6 @@ const validateUpdateProfile = [
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
-  check('country')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
   (req, res, next) => {
     validateResult(req, res, next)
   }

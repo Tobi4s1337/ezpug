@@ -36,9 +36,6 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    country: {
-      type: String
-    },
     loginAttempts: {
       type: Number,
       default: 0,

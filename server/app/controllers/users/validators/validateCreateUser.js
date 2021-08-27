@@ -38,13 +38,6 @@ const validateCreateUser = [
     .withMessage('IS_EMPTY')
     .isIn(['user', 'admin'])
     .withMessage('USER_NOT_IN_KNOWN_ROLE'),
-  check('country')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
   (req, res, next) => {
     validateResult(req, res, next)
   }

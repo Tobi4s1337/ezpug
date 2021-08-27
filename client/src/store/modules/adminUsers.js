@@ -29,8 +29,7 @@ const actions = {
       const data = {
         name: payload.name,
         email: payload.email,
-        role: payload.role,
-        country: payload.country
+        role: payload.role
       }
       api
         .editUser(payload._id, data)

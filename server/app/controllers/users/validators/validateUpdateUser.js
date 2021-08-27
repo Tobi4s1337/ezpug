@@ -24,13 +24,6 @@ const validateUpdateUser = [
     .not()
     .isEmpty()
     .withMessage('IS_EMPTY'),
-  check('country')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
   check('id')
     .exists()
     .withMessage('MISSING')
