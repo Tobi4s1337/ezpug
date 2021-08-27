@@ -159,24 +159,6 @@
                 </v-flex>
                 <v-flex xs12 md4>
                   <ValidationProvider rules="required" v-slot="{ errors }">
-                    <v-autocomplete
-                      id="city"
-                      name="city"
-                      :label="$t('myProfile.CITY')"
-                      :search-input.sync="searchInput"
-                      v-model="city"
-                      :items="allCities"
-                      clearable
-                      clear-icon="mdi-close"
-                      :no-data-text="$t('myProfile.NO_RESULTS_FOUND')"
-                      :error="errors.length > 0"
-                      :error-messages="errors[0]"
-                      autocomplete="off"
-                    />
-                  </ValidationProvider>
-                </v-flex>
-                <v-flex xs12 md4>
-                  <ValidationProvider rules="required" v-slot="{ errors }">
                     <v-text-field
                       id="country"
                       name="country"
@@ -282,21 +264,6 @@ export default {
         this.addProfileData(data)
       }
     },
-    allCities() {
-      return this.$store.state.cities.allCities
-    },
-    city: {
-      get() {
-        return this.$store.state.profile.profile.city
-      },
-      set(value) {
-        const data = {
-          key: 'city',
-          value
-        }
-        this.addProfileData(data)
-      }
-    },
     country: {
       get() {
         return this.$store.state.profile.profile.country
@@ -338,7 +305,6 @@ export default {
     ...mapActions([
       'changeMyPassword',
       'getProfile',
-      'getAllCities',
       'addProfileData',
       'saveProfile'
     ]),
@@ -346,7 +312,6 @@ export default {
       await this.saveProfile({
         name: this.name,
         phone: this.phone,
-        city: this.city,
         country: this.country,
         urlTwitter: this.urlTwitter,
         urlGitHub: this.urlGitHub
@@ -380,7 +345,6 @@ export default {
   },
   async mounted() {
     await this.getProfile()
-    await this.getAllCities()
   }
 }
 </script>

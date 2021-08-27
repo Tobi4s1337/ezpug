@@ -19,13 +19,6 @@ const validateUpdateProfile = [
     .isEmpty()
     .withMessage('IS_EMPTY')
     .trim(),
-  check('city')
-    .exists()
-    .withMessage('MISSING')
-    .not()
-    .isEmpty()
-    .withMessage('IS_EMPTY')
-    .trim(),
   check('country')
     .exists()
     .withMessage('MISSING')

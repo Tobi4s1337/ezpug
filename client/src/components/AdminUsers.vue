@@ -186,26 +186,6 @@
                             rules="required"
                             v-slot="{ errors }"
                           >
-                            <v-autocomplete
-                              id="city"
-                              name="city"
-                              :label="$t('users.headers.CITY')"
-                              :search-input.sync="searchInput"
-                              v-model="editedItem.city"
-                              :items="allCities"
-                              clearable
-                              :error="errors.length > 0"
-                              :error-messages="errors[0]"
-                              autocomplete="off"
-                              class="inputCity"
-                            />
-                          </ValidationProvider>
-                        </v-flex>
-                        <v-flex xs12 md6>
-                          <ValidationProvider
-                            rules="required"
-                            v-slot="{ errors }"
-                          >
                             <v-text-field
                               id="country"
                               name="country"
@@ -267,7 +247,6 @@
         <td>{{ props.item.email }}</td>
         <td>{{ roleName(props.item.role) }}</td>
         <td v-html="trueFalse(props.item.verified)"></td>
-        <td>{{ props.item.city }}</td>
         <td>{{ props.item.country }}</td>
         <td>{{ props.item.phone }}</td>
       </template>
@@ -347,7 +326,7 @@ export default {
       pagination: {},
       editedItem: {},
       defaultItem: {},
-      fieldsToSearch: ['name', 'email', 'role', 'city', 'country', 'phone']
+      fieldsToSearch: ['name', 'email', 'role', 'country', 'phone']
     }
   },
   computed: {
@@ -356,9 +335,6 @@ export default {
         { name: this.$t('roles.ADMIN'), value: 'admin' },
         { name: this.$t('roles.USER'), value: 'user' }
       ]
-    },
-    allCities() {
-      return this.$store.state.cities.allCities
     },
     formTitle() {
       return this.editedItem._id
@@ -396,12 +372,6 @@ export default {
           align: 'left',
           sortable: true,
           value: 'verified'
-        },
-        {
-          text: this.$i18n.t('users.headers.CITY'),
-          align: 'left',
-          sortable: true,
-          value: 'city'
         },
         {
           text: this.$i18n.t('users.headers.COUNTRY'),
@@ -463,13 +433,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions([
-      'getAllCities',
-      'getUsers',
-      'editUser',
-      'saveUser',
-      'deleteUser'
-    ]),
+    ...mapActions(['getUsers', 'editUser', 'saveUser', 'deleteUser']),
     getFormat(date) {
       window.__localeId__ = this.$store.getters.locale
       return getFormat(date, 'iii, MMMM d yyyy, h:mm a')
@@ -552,7 +516,6 @@ export default {
             password: this.editedItem.password,
             role: this.editedItem.role,
             phone: this.editedItem.phone,
-            city: this.editedItem.city,
             country: this.editedItem.country
           })
           await this.getUsers(
@@ -568,9 +531,6 @@ export default {
         this.close()
       }
     }
-  },
-  async mounted() {
-    await this.getAllCities()
   }
 }
 </script>

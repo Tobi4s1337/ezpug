@@ -77,7 +77,6 @@ const mutations = {
     state.profile.name = data.name
     state.profile.email = data.email
     state.profile.phone = data.phone
-    state.profile.city = data.city
     state.profile.country = data.country
     state.profile.urlTwitter = data.urlTwitter
     state.profile.urlGitHub = data.urlGitHub
@@ -89,9 +88,6 @@ const mutations = {
         break
       case 'phone':
         state.profile.phone = data.value
-        break
-      case 'city':
-        state.profile.city = data.value
         break
       case 'country':
         state.profile.country = data.value
@@ -114,7 +110,6 @@ const state = {
     name: '',
     email: '',
     phone: '',
-    city: '',
     country: '',
     urlTwitter: '',
     urlGitHub: ''

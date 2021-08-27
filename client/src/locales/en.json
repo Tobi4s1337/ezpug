@@ -26,8 +26,7 @@
     "UNAUTHORIZED": "Unauthorized",
     "EMAIL_ALREADY_EXISTS": "E-mail already exists",
     "ID_MALFORMED": "ID malformed",
-    "ERROR_WITH_FILTER": "Error with filter",
-    "CITY_ALREADY_EXISTS": "City already exists"
+    "ERROR_WITH_FILTER": "Error with filter"
   },
   "common": {
     "DELETE": "Delete",
@@ -58,7 +57,6 @@
   },
   "adminItems": {
     "ADMIN": "Admin",
-    "CITIES": "Cities",
     "USERS": "Users"
   },
   "roles": {
@@ -80,12 +78,6 @@
     "OF": "of",
     "SEARCH": "Search"
   },
-  "cities": {
-    "TITLE": "Cities",
-    "headers": {
-      "NAME": "Name"
-    }
-  },
   "users": {
     "TITLE": "Users",
     "headers": {
@@ -93,7 +85,6 @@
       "EMAIL": "E-mail",
       "ROLE": "Role",
       "VERIFIED": "Verified",
-      "CITY": "City",
       "COUNTRY": "Country",
       "PHONE": "Phone"
     },
@@ -166,7 +157,6 @@
     "NAME": "Name",
     "EMAIL": "E-mail",
     "PHONE": "Phone",
-    "CITY": "City",
     "NO_RESULTS_FOUND": "No results found",
     "COUNTRY": "Country",
     "SAVE": "Save",

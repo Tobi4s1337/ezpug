@@ -206,12 +206,6 @@ export default {
     adminItems() {
       return [
         {
-          title: this.$t('adminItems.CITIES'),
-          link: 'admin-cities',
-          icon: 'mdi-city',
-          class: 'btnAdminCities'
-        },
-        {
           title: this.$t('adminItems.USERS'),
           link: 'admin-users',
           icon: 'mdi-account-supervisor',
