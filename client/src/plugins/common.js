@@ -5,6 +5,7 @@ import ErrorMessage from '@/components/common/ErrorMessage.vue'
 import SuccessMessage from '@/components/common/SuccessMessage.vue'
 import SubmitButton from '@/components/common/SubmitButton.vue'
 import ProjectDescription from '@/components/common/ProjectDescription.vue'
+import SteamAuth from '@/components/common/SteamAuth.vue'
 
 Vue.component('Heading', Heading)
 Vue.component('Description', Description)
@@ -12,3 +13,4 @@ Vue.component('ErrorMessage', ErrorMessage)
 Vue.component('SuccessMessage', SuccessMessage)
 Vue.component('SubmitButton', SubmitButton)
 Vue.component('ProjectDescription', ProjectDescription)
+Vue.component('SteamAuth', SteamAuth)

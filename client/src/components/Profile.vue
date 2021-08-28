@@ -155,6 +155,9 @@
       <ErrorMessage />
       <SuccessMessage />
     </v-layout>
+    <v-layout>
+      <SteamAuth />
+    </v-layout>
   </v-container>
 </template>
 
