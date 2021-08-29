@@ -59,7 +59,7 @@ export default {
     },
     async handleSteamLink(steamId) {
       try {
-        const { data } = await axios.post('/steam', { id: steamId })
+        const { data } = await axios.post('/steam', { steamId })
         console.log(data)
         this.$emit('steam-link', data)
       } catch (error) {

@@ -9,7 +9,7 @@ const { addSteamToUser } = require('./helpers')
  */
 const link = async (req, res) => {
   try {
-    const steamId = decrypt(req.body.id)
+    const steamId = decrypt(req.body.steamId)
     const userId = await isIDGood(req.user._id)
     const steamUserData = await addSteamToUser(userId, steamId)
     res.status(200).send(steamUserData)
