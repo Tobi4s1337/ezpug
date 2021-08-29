@@ -42,7 +42,7 @@ const addSteamToUser = (userId = '', steamId = '') => {
     const updatedData = {
       steamId,
       csgoId: steamUserInfo.csgoId,
-      steamUrl: steamUserInfo.url
+      steamUrl: 'http://steamcommunity.com/profiles/' + steamId
     }
     User.findByIdAndUpdate(
       userId,
