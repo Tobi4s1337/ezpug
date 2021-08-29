@@ -2,7 +2,6 @@
   <v-container fluid>
     <v-layout row wrap>
       <Heading :title="$t('login.TITLE')" />
-      <Description :description="$t('login.DESCRIPTION')" />
       <v-flex xs12 sm6 offset-sm3>
         <ValidationObserver v-slot="{ handleSubmit }">
           <form @submit.prevent="handleSubmit(submit)">
@@ -53,8 +52,8 @@
       </v-flex>
       <ErrorMessage />
     </v-layout>
-    <v-flex xs12 md6>
-      <h3>Login using your Steam Account</h3>
+    <v-flex xs12 mt-5>
+      <h3 class="mt-5 mb-2">Login using your Steam Account</h3>
       <SteamAuth type="LOGIN" @authenticated="steamLogin" />
     </v-flex>
   </v-container>

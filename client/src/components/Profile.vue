@@ -156,12 +156,12 @@
       <SuccessMessage />
     </v-layout>
     <v-layout>
-      <v-flex xs12 md6 v-if="!steamUrl">
-        <h3>Link Your Steam Account</h3>
+      <v-flex xs12 v-if="!steamUrl">
+        <h3 class="mt-5 mb-2">Link Your Steam Account</h3>
         <SteamAuth type="LINK" @steam-link="onSteamLink" />
       </v-flex>
-      <v-flex xs12 md6 v-else>
-        <h3>Your Steam Profile</h3>
+      <v-flex xs12 v-else>
+        <h3 class="mt-5 mb-2">Your Steam Profile</h3>
         <v-btn :href="steamUrl" target="_blank">Steam</v-btn>
       </v-flex>
     </v-layout>
