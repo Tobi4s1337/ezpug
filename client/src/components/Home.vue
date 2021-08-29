@@ -31,7 +31,6 @@
       <Heading :title="$t('home.GREETING', [name])" />
       <Description :description="$t('home.DESCRIPTION')" />
     </v-layout>
-    <ProjectDescription />
   </v-container>
 </template>
 
