@@ -10,8 +10,15 @@ module.exports = () => {
       DB_URL,
       {
         keepAlive: true,
+        autoIndex: true,
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        auth: {
+          authSource: 'admin'
+        },
+        user: process.env.MONGO_USER,
+        pass: process.env.MONGO_PASS
       },
       (err) => {
         let dbStatus = ''
@@ -30,7 +37,6 @@ module.exports = () => {
         }
       }
     )
-    mongoose.set('useCreateIndex', true)
     mongoose.set('useFindAndModify', false)
   }
   connect()

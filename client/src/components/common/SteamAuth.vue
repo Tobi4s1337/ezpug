@@ -6,6 +6,7 @@
 
 <script>
 import axios from 'axios'
+import { handleError } from '../../utils/utils'
 
 export default {
   name: 'SteamAuth',
@@ -13,6 +14,9 @@ export default {
     return {
       windowRef: null
     }
+  },
+  props: {
+    type: String // SIGNUP, LOGIN, LINK
   },
   computed: {
     disabledButton() {
@@ -40,12 +44,34 @@ export default {
         }
 
         if (e.data.id) {
-          console.log(e.data.id)
-          axios.post('/steam', { id: e.data.id })
+          if (this.type === 'SIGNUP') {
+            this.handleSteamSignup(e.data.id)
+          } else if (this.type === 'LOGIN') {
+            this.handleSteamLogin(e.data.id)
+          } else if (this.type === 'LINK') {
+            this.handleSteamLink(e.data.id)
+          }
         } else {
           console.log('Invalid data')
         }
       })
+    },
+    handleSteamSignup(steamId) {
+      axios.post('/steam', { id: steamId })
+    },
+    handleSteamLogin(steamId) {
+      axios.post('/steam', { id: steamId })
+    },
+    async handleSteamLink(steamId) {
+      try {
+        const { data } = await axios.post('/steam', { id: steamId })
+        console.log(data)
+        this.$emit('steam-link', data)
+      } catch (error) {
+        handleError(error, this.$store.commit, (e) => {
+          console.log(e)
+        })
+      }
     }
   }
 }

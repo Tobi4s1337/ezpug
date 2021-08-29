@@ -25,6 +25,7 @@
     "NOT_FOUND": "Not found",
     "UNAUTHORIZED": "Unauthorized",
     "EMAIL_ALREADY_EXISTS": "E-mail already exists",
+    "STEAM_ALREADY_EXIST":"An account linked to this Steam account already exists",
     "ID_MALFORMED": "ID malformed",
     "ERROR_WITH_FILTER": "Error with filter"
   },

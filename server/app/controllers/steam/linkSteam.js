@@ -1,5 +1,7 @@
 const { decrypt } = require('../../middleware/auth')
-const { handleError } = require('../../middleware/utils')
+const { handleError, isIDGood } = require('../../middleware/utils')
+const { addSteamToUser } = require('./helpers')
+
 /**
  * LinkSteam function called by route
  * @param {Object} req - request object
@@ -7,9 +9,14 @@ const { handleError } = require('../../middleware/utils')
  */
 const linkSteam = async (req, res) => {
   try {
-    console.log(decrypt(req.body.id))
-    res.sendStatus(200)
+    const steamId = decrypt(req.body.id)
+    const userId = await isIDGood(req.user._id)
+    const steamUserData = await addSteamToUser(userId, steamId)
+    res.status(200).send(steamUserData)
   } catch (error) {
+    if(error.code === 422) {
+      error.message = "STEAM_ALREADY_EXIST"
+    }
     handleError(res, error)
   }
 }

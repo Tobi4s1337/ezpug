@@ -8,14 +8,14 @@ const { handleError } = require('../../middleware/utils')
 const sendEncryptedSteamid = async (req, res) => {
   try {
     // We need to encrypt and later decrypt the steamid to make sure that a user cant claim the steamid of somebody else
-    console.log(req)
+    // TODO: Fix Content-Security-Policy; below is unsafe
     res
       .set(
         'Content-Security-Policy',
         "default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'"
       )
       .render('steamAuthSuccess', {
-        id: encrypt(req.user._json.steamid),
+        id: encrypt(req.user._json.steamid)
       })
   } catch (error) {
     handleError(res, error)

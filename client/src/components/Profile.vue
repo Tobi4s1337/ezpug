@@ -156,7 +156,14 @@
       <SuccessMessage />
     </v-layout>
     <v-layout>
-      <SteamAuth />
+      <v-flex xs12 md6 v-if="!steamUrl">
+        <h3>Link Your Steam Account</h3>
+        <SteamAuth type="LINK" @steam-link="onSteamLink" />
+      </v-flex>
+      <v-flex xs12 md6 v-else>
+        <h3>Your Steam Profile</h3>
+        <v-btn :href="steamUrl" target="_blank">Steam</v-btn>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -196,6 +203,9 @@ export default {
     },
     email() {
       return this.$store.state.profile.profile.email
+    },
+    steamUrl() {
+      return this.$store.state.profile.profile.steamUrl
     }
   },
   methods: {
@@ -234,6 +244,12 @@ export default {
         this.triggerChangePassword = false
         this.close()
       }
+    },
+    async onSteamLink(steamUserData) {
+      console.log(steamUserData)
+      this.addProfileData({ key: 'steamId', value: steamUserData.steamId })
+      this.addProfileData({ key: 'csgoId', value: steamUserData.csgoId })
+      this.addProfileData({ key: 'steamUrl', value: steamUserData.steamUrl })
     }
   },
   async mounted() {

@@ -76,11 +76,23 @@ const mutations = {
     state.profile.verified = data.verified
     state.profile.name = data.name
     state.profile.email = data.email
+    state.profile.steamId = data.steamId
+    state.profile.csgoId = data.csgoId
+    state.profile.steamUrl = data.steamUrl
   },
   [types.ADD_PROFILE_DATA](state, data) {
     switch (data.key) {
       case 'name':
         state.profile.name = data.value
+        break
+      case 'steamUrl':
+        state.profile.steamUrl = data.value
+        break
+      case 'steamId':
+        state.profile.steamId = data.value
+        break
+      case 'csgoId':
+        state.profile.csgoId = data.value
         break
       default:
         break
@@ -92,7 +104,10 @@ const state = {
   profile: {
     verified: false,
     name: '',
-    email: ''
+    email: '',
+    steamId: '',
+    csgoId: '',
+    steamUrl: ''
   }
 }
 

@@ -48,13 +48,19 @@ const UserSchema = new mongoose.Schema(
       select: false
     },
     steamId: {
-      type: String
+      type: String,
+      unique: true,
+      dropDups: true
     },
     csgoId: {
-      type: String
+      type: String,
+      unique: true,
+      dropDups: true
     },
-    steamurl: {
-      type: String
+    steamUrl: {
+      type: String,
+      unique: true,
+      dropDups: true
     }
   },
   {
