@@ -246,7 +246,6 @@ export default {
       }
     },
     async onSteamLink(steamUserData) {
-      console.log(steamUserData)
       this.addProfileData({ key: 'steamId', value: steamUserData.steamId })
       this.addProfileData({ key: 'csgoId', value: steamUserData.csgoId })
       this.addProfileData({ key: 'steamUrl', value: steamUserData.steamUrl })
