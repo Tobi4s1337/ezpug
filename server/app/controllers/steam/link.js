@@ -3,11 +3,11 @@ const { handleError, isIDGood } = require('../../middleware/utils')
 const { addSteamToUser } = require('./helpers')
 
 /**
- * LinkSteam function called by route
+ * link steam function called by route
  * @param {Object} req - request object
  * @param {Object} res - response object
  */
-const linkSteam = async (req, res) => {
+const link = async (req, res) => {
   try {
     const steamId = decrypt(req.body.id)
     const userId = await isIDGood(req.user._id)
@@ -21,4 +21,4 @@ const linkSteam = async (req, res) => {
   }
 }
 
-module.exports = { linkSteam }
+module.exports = { link }

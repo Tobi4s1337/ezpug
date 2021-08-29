@@ -5,7 +5,14 @@ const passport = require('passport')
 const requireAuth = passport.authenticate('jwt', {
   session: false
 })
-const { sendEncryptedSteamid, linkSteam } = require('../controllers/steam')
+const trimRequest = require('trim-request')
+
+const { sendEncryptedSteamid, link, login } = require('../controllers/steam')
+
+const {
+  validateLink,
+  validateLogin
+} = require('../controllers/steam/validators')
 
 router.get(
   '/',
@@ -27,6 +34,11 @@ router.get(
   sendEncryptedSteamid
 )
 
-router.post('/', requireAuth, linkSteam)
+router.post('/', trimRequest.all, requireAuth, validateLink, link)
+
+/*
+ * Login route
+ */
+router.post('/login', trimRequest.all, validateLogin, login)
 
 module.exports = router

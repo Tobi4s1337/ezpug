@@ -53,6 +53,10 @@
       </v-flex>
       <ErrorMessage />
     </v-layout>
+    <v-flex xs12 md6>
+      <h3>Login using your Steam Account</h3>
+      <SteamAuth type="LOGIN" @authenticated="steamLogin" />
+    </v-flex>
   </v-container>
 </template>
 
@@ -79,6 +83,11 @@ export default {
       await this.userLogin({
         email: this.email,
         password: this.password
+      })
+    },
+    async steamLogin(steamId) {
+      await this.userLogin({
+        steamId
       })
     }
   },

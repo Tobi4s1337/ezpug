@@ -59,8 +59,8 @@ export default {
     handleSteamSignup(steamId) {
       axios.post('/steam', { id: steamId })
     },
-    handleSteamLogin(steamId) {
-      axios.post('/steam', { id: steamId })
+    async handleSteamLogin(steamId) {
+      this.$emit('authenticated', steamId)
     },
     async handleSteamLink(steamId) {
       try {

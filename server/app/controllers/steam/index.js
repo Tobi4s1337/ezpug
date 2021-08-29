@@ -1,7 +1,9 @@
 const { sendEncryptedSteamid } = require('./sendEncryptedSteamid')
-const { linkSteam } = require('./linkSteam')
+const { link } = require('./link')
+const { login } = require('./login')
 
 module.exports = {
   sendEncryptedSteamid,
-  linkSteam
+  link,
+  login
 }

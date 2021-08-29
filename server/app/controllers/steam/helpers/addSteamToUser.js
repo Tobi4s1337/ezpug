@@ -1,9 +1,5 @@
 const User = require('../../../models/user')
-const {
-  itemNotFound,
-  buildErrObject,
-  buildSuccObject
-} = require('../../../middleware/utils')
+const { itemNotFound } = require('../../../middleware/utils')
 const SteamAPI = require('steamapi')
 const steam = new SteamAPI(process.env.STEAM_API_KEY)
 const SteamID = require('steamid')
@@ -38,7 +34,7 @@ const getSteamUserInfo = (steamId = '') => {
 /**
  * Adds steam info to user
  * @param {string} userId - user id
- * @param {Object} steamId - decrypted steam id
+ * @param {string} steamId - decrypted steam id
  */
 const addSteamToUser = (userId = '', steamId = '') => {
   return new Promise(async (resolve, reject) => {
