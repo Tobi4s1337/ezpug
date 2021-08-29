@@ -16,7 +16,7 @@ export default {
     }
   },
   props: {
-    type: String // SIGNUP, LOGIN, LINK
+    type: String // LOGIN, LINK
   },
   computed: {
     disabledButton() {
@@ -44,9 +44,7 @@ export default {
         }
 
         if (e.data.id) {
-          if (this.type === 'SIGNUP') {
-            this.handleSteamSignup(e.data.id)
-          } else if (this.type === 'LOGIN') {
+          if (this.type === 'LOGIN') {
             this.handleSteamLogin(e.data.id)
           } else if (this.type === 'LINK') {
             this.handleSteamLink(e.data.id)
@@ -55,9 +53,6 @@ export default {
           console.log('Invalid data')
         }
       })
-    },
-    handleSteamSignup(steamId) {
-      axios.post('/steam', { id: steamId })
     },
     async handleSteamLogin(steamId) {
       this.$emit('authenticated', steamId)
