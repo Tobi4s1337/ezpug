@@ -39,7 +39,6 @@ export default {
         eventMethod === 'attachEvent' ? 'onmessage' : 'message'
       eventer(messageEvent, (e) => {
         if (e.origin !== process.env.VUE_APP_FRONTEND_URL) {
-          console.log('Not allowed')
           return
         }
 
@@ -49,8 +48,6 @@ export default {
           } else if (this.type === 'LINK') {
             this.handleSteamLink(e.data.id)
           }
-        } else {
-          console.log('Invalid data')
         }
       })
     },
@@ -60,12 +57,9 @@ export default {
     async handleSteamLink(steamId) {
       try {
         const { data } = await axios.post('/steam', { steamId })
-        console.log(data)
         this.$emit('steam-link', data)
       } catch (error) {
-        handleError(error, this.$store.commit, (e) => {
-          console.log(e)
-        })
+        handleError(error, this.$store.commit, (e) => {})
       }
     }
   }
