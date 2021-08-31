@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- Node.js **10+**
-- MongoDB **3.6+**
+*   Node.js **10+**
+*   MongoDB **3.6+**
 
 ## How to install
 
@@ -49,9 +49,9 @@ There are 3 available commands for this: `fresh`, `clean` and `seed`.
 npm run command
 ```
 
-- `fresh` cleans and then seeds the database with dynamic data.
-- `clean` cleans the database.
-- `seed` seeds the database with dynamic data.
+*   `fresh` cleans and then seeds the database with dynamic data.
+*   `clean` cleans the database.
+*   `seed` seeds the database with dynamic data.
 
 ### Running in development mode (lifting API server)
 

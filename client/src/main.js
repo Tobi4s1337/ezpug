@@ -18,7 +18,7 @@ const socket = io(process.env.VUE_APP_SOCKET_URL, {
 
 Vue.config.productionTip = false
 Vue.use(VuetifyConfirm, { vuetify })
-Vue.use(VueSocketIOExt, socket)
+Vue.use(VueSocketIOExt, socket, { store })
 
 const app = new Vue({
   vuetify,

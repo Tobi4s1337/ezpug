@@ -3,7 +3,7 @@ const server = require('http').createServer(app)
 server.listen(process.env.SOCKETIO_PORT || 3003)
 
 // require events
-const { authenticate, disconnect } = require('./events')
+const { authenticate, disconnect, logout } = require('./events')
 
 // require helper functions
 const { joinRooms } = require('./helpers')
@@ -25,9 +25,14 @@ io.on('connection', (socket) => {
     try {
       await authenticate(socket, data)
       await joinRooms(socket)
+      console.log('Joined all rooms')
     } catch (err) {
       console.log(err)
     }
+  })
+  socket.on('logout', () => {
+    logout(socket, io)
+    console.log(socket)
   })
   socket.on('disconnect', disconnect)
 })

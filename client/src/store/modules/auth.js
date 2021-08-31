@@ -40,6 +40,9 @@ const actions = {
             commit(types.SAVE_USER, response.data.user)
             commit(types.SAVE_TOKEN, response.data.token)
             commit(types.EMAIL_VERIFIED, response.data.user.verified)
+            this._vm.$socket.client.emit('authenticate', {
+              key: response.data.token
+            })
             buildSuccess(
               null,
               commit,
@@ -95,6 +98,7 @@ const actions = {
     window.localStorage.removeItem('tokenExpiration')
     window.localStorage.removeItem('user')
     commit(types.LOGOUT)
+    this._vm.$socket.client.emit('logout')
     router.push({
       name: 'login'
     })
