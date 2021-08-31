@@ -8,9 +8,17 @@ import App from '@/App.vue'
 import router from '@/router'
 import { store } from '@/store'
 import VuetifyConfirm from 'vuetify-confirm'
+import VueSocketIOExt from 'vue-socket.io-extended'
+import { io } from 'socket.io-client'
+
+const socket = io(process.env.VUE_APP_SOCKET_URL, {
+  path: '/socket',
+  debug: true
+})
 
 Vue.config.productionTip = false
 Vue.use(VuetifyConfirm, { vuetify })
+Vue.use(VueSocketIOExt, socket)
 
 const app = new Vue({
   vuetify,

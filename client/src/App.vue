@@ -68,6 +68,17 @@ export default {
     appTitle() {
       return this.$store.getters.appTitle
     }
+  },
+  sockets: {
+    connect() {
+      console.log('connect')
+      console.log(this.$store.getters)
+      if (this.$store.getters.isTokenSet) {
+        this.$socket.client.emit('authenticate', {
+          key: this.$store.getters.token
+        })
+      }
+    }
   }
 }
 </script>

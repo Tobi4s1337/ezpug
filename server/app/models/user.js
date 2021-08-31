@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt')
 const validator = require('validator')
 const mongoosePaginate = require('mongoose-paginate-v2')
 
+const Schema = mongoose.Schema
+
 const UserSchema = new mongoose.Schema(
   {
     name: {
@@ -61,7 +63,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       unique: true,
       dropDups: true
-    }
+    },
+    friends: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
+    sentFriendRequests: [
+      { type: Schema.Types.ObjectId, ref: 'FriendRequests' }
+    ],
+    receivedFriendRequests: [
+      { type: Schema.Types.ObjectId, ref: 'FriendRequests' }
+    ]
   },
   {
     versionKey: false,

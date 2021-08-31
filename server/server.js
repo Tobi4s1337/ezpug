@@ -14,6 +14,9 @@ const path = require('path')
 // Setup express server port from ENV, default: 3001
 app.set('port', process.env.PORT || 3001)
 
+// Setup socket
+require('./app/socket/index')
+
 // Enable only in development HTTP request logger middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
@@ -57,4 +60,4 @@ app.listen(app.get('port'))
 // Init MongoDB
 initMongo()
 
-module.exports = app // for testing
+module.exports = app

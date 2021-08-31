@@ -33,6 +33,7 @@
     "core-js": "^3.8.3",
     "date-fns": "^2.16.1",
     "remark-cli": "^9.0.0",
+    "socket.io-client": "^4.2.0",
     "vee-validate": "^3.4.5",
     "vue": "^2.6.12",
     "vue-country-flag": "^2.0.3",
@@ -40,6 +41,7 @@
     "vue-meta": "^2.4.0",
     "vue-resize-text": "^0.1.1",
     "vue-router": "^3.4.9",
+    "vue-socket.io-extended": "^4.2.0",
     "vuetify": "^2.4.3",
     "vuetify-confirm": "^2.0.6",
     "vuex": "^3.6.0"
