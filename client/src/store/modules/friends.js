@@ -1,6 +1,7 @@
 import * as types from '@/store/mutation-types'
 import api from '@/services/api/friends'
 import { buildSuccess, handleError } from '@/utils/utils.js'
+import Vue from 'vue'
 
 const getters = {
   friends: (state) => state.friends,
@@ -130,6 +131,12 @@ const actions = {
           handleError(error, commit, reject)
         })
     })
+  },
+  socket_socialChangedName({ commit }, payload) {
+    commit(types.UPDATE_FRIEND, payload)
+  },
+  socket_socialChangedStatus({ commit }, payload) {
+    commit(types.UPDATE_FRIEND, payload)
   }
 }
 
@@ -152,14 +159,23 @@ const mutations = {
     })
   },
   [types.REMOVE_RECEIVED_FRIEND_REQUEST](state, friendRequestId) {
-    state.receivedFriendRequests = state.receivedFriendRequests.filter((request) => {
-      return request._id !== friendRequestId
-    })
+    state.receivedFriendRequests = state.receivedFriendRequests.filter(
+      (request) => {
+        return request._id !== friendRequestId
+      }
+    )
   },
   [types.REMOVE_FRIEND](state, userId) {
     state.friends = state.friends.filter((friend) => {
       return friend._id !== userId
     })
+  },
+  [types.UPDATE_FRIEND](state, data) {
+    const index = state.friends.map((e) => e._id).indexOf(data.userId)
+    delete data.userId
+    const friend = Object.assign(state.friends[index], data)
+    console.log(friend)
+    Vue.set(state.friends, index, Object.assign(state.friends[index], friend))
   }
 }
 

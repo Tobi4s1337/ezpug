@@ -2,7 +2,7 @@
   <v-app>
     <Toolbar />
     <v-main class="text-center">
-      <FriendsSidebar />
+      <FriendsSidebar v-if="user" />
       <loading />
       <v-container fluid>
         <transition name="fade" mode="out-in">
@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
 import Toolbar from '@/components/core/Toolbar.vue'
 import Loading from '@/components/core/Loading.vue'
 import Footer from '@/components/core/Footer.vue'
@@ -66,9 +67,13 @@ export default {
     Footer
   },
   computed: {
+    ...mapGetters(['user']),
     appTitle() {
       return this.$store.getters.appTitle
     }
+  },
+  methods: {
+    ...mapActions(['getProfile'])
   },
   sockets: {
     connect() {
@@ -78,6 +83,11 @@ export default {
         })
       }
     }
+  },
+  mounted() {
+    this.$nextTick(function () {
+      this.getProfile()
+    })
   }
 }
 </script>

@@ -1,5 +1,6 @@
 const { Socket } = require('socket.io')
 const { leaveRooms } = require('../helpers')
+const { updateStatus } = require('../../controllers/users/helpers')
 
 /**
  * Disconnects user from all rooms and removes userId from socket
@@ -7,6 +8,7 @@ const { leaveRooms } = require('../helpers')
  * @param {object} io - socket io instance
  */
 const logout = (socket, io) => {
+  updateStatus(socket.userId, { online: false, lastSeen: Date.now() })
   leaveRooms(Socket, io)
   socket.userId = null
   socket.authenticated = false

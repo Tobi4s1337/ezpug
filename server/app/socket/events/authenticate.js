@@ -1,6 +1,7 @@
 const {
   getUserIdFromToken
 } = require('../../controllers/auth/helpers/getUserIdFromToken')
+const { updateStatus } = require('../../controllers/users/helpers/updateStatus')
 
 /**
  * Authenticates user socket connection
@@ -13,6 +14,7 @@ const authenticate = (socket, { key = '' }) => {
       const userId = await getUserIdFromToken(key)
       socket.userId = userId
       socket.authenticated = true
+      updateStatus(userId, { online: true })
       resolve(userId)
     } catch (err) {
       reject(err)

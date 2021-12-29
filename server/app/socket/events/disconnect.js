@@ -1,8 +1,13 @@
+const { updateStatus } = require('../../controllers/users/helpers/updateStatus')
+
 /**
  * Handles user disconnect event
- * @param {string} key - user jwt
+ * @param {String} userId - id of user
  */
-const disconnect = () => {
+const disconnect = (userId) => {
+  if (userId) {
+    updateStatus(userId, { online: false, lastSeen: Date.now() })
+  }
   console.log('disconnect')
 }
 

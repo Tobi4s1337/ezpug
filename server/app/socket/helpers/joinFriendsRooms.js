@@ -4,9 +4,10 @@
  * @param {array} friends - user friends
  */
 const joinFriendsRooms = (socket, friends) => {
-  for (const friendId in friends) {
-    socket.join(`status-${friendId}`)
-  }
+  friends.forEach((friendId) => {
+    console.log(`social-${friendId}`)
+    socket.join(`social-${friendId}`)
+  })
 }
 
 module.exports = { joinFriendsRooms }
