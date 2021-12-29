@@ -34,7 +34,18 @@ const {
 router.get(
   '/',
   requireAuth,
-  roleAuthorization(['admin']),
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  getUsers
+)
+
+/*
+ * Get items route
+ */
+router.get(
+  '/search',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
   trimRequest.all,
   getUsers
 )

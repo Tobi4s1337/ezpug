@@ -64,13 +64,31 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       dropDups: true
     },
-    friends: [{ type: Schema.Types.ObjectId, ref: 'Users' }],
+    friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     sentFriendRequests: [
       { type: Schema.Types.ObjectId, ref: 'FriendRequests' }
     ],
     receivedFriendRequests: [
       { type: Schema.Types.ObjectId, ref: 'FriendRequests' }
-    ]
+    ],
+    status: {
+      online: {
+        type: Boolean,
+        default: false
+      },
+      inQueue: {
+        type: Boolean,
+        default: false
+      },
+      inMatch: {
+        type: Boolean,
+        default: false
+      },
+      lastSeen: {
+        type: Date,
+        default: Date.now()
+      }
+    }
   },
   {
     versionKey: false,

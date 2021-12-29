@@ -2,6 +2,7 @@
   <v-app>
     <Toolbar />
     <v-main class="text-center">
+      <FriendsSidebar />
       <loading />
       <v-container fluid>
         <transition name="fade" mode="out-in">

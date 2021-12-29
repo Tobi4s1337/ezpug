@@ -4,8 +4,8 @@ const Schema = mongoose.Schema
 
 const FriendRequestSchema = new Schema(
   {
-    requested: { type: Schema.Types.ObjectId, ref: 'Users' },
-    recipient: { type: Schema.Types.ObjectId, ref: 'Users' }
+    requester: { type: Schema.Types.ObjectId, ref: 'User' },
+    recipient: { type: Schema.Types.ObjectId, ref: 'User' }
   },
   {
     versionKey: false,

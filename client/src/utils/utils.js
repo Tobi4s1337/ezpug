@@ -1,6 +1,6 @@
 import i18n from '@/plugins/i18n'
 import * as types from '@/store/mutation-types'
-import { isPast, format, parseISO } from 'date-fns'
+import { isPast, format, parseISO, formatDistance } from 'date-fns'
 import { store } from '@/store'
 import { de } from 'date-fns/locale'
 
@@ -11,6 +11,13 @@ const localesDateFns = {
 export const getFormat = (date, formatStr) => {
   return format(parseISO(date), formatStr, {
     locale: localesDateFns[window.__localeId__]
+  })
+}
+
+export const getSince = (date) => {
+  return formatDistance(parseISO(date), new Date(), {
+    locale: localesDateFns[window.__localeId__],
+    addSuffix: true
   })
 }
 

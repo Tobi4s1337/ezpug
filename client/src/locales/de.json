@@ -25,7 +25,7 @@
     "NOT_FOUND": "Not found",
     "UNAUTHORIZED": "Unauthorized",
     "EMAIL_ALREADY_EXISTS": "E-mail already exists",
-    "STEAM_ALREADY_EXIST":"An account linked to this Steam account already exists",
+    "STEAM_ALREADY_EXIST": "An account linked to this Steam account already exists",
     "ID_MALFORMED": "ID malformed",
     "ERROR_WITH_FILTER": "Error with filter"
   },
@@ -151,5 +151,22 @@
     "NO_RESULTS_FOUND": "No results found",
     "SAVE": "Save",
     "PROFILE_SAVED_SUCCESSFULLY": "Profile saved successfuly"
+  },
+  "status": {
+    "ONLINE": "Online",
+    "IN_QUEUE": "In der Warteschlange",
+    "LAST_SEEN": "Zuletzt gesehen"
+  },
+  "stats": {
+    "RECENT_RESULTS": "AKTUELLE ERGEBNISSE",
+    "ELO_RATING": "ELO PUNKTE"
+  },
+  "social": {
+    "ADD_FRIEND": "Hinzufügen",
+    "REMOVE_FRIEND": "Entfernen",
+    "PROFILE": "Profil",
+    "CANCEL_REQUEST": "Zurückziehen",
+    "SEND_MESSAGE": "Nachricht senden",
+    "ACCEPT_REQUEST": "Annehmen"
   }
 }

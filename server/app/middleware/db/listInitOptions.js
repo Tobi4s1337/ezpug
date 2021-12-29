@@ -13,11 +13,15 @@ const listInitOptions = (req = {}) => {
       const sortBy = buildSort(sort, order)
       const page = parseInt(req.query.page, 10) || 1
       const limit = parseInt(req.query.limit, 10) || 5
+      const select = req.query.select ? req.query.select : false
       const options = {
         sort: sortBy,
         lean: true,
         page,
         limit
+      }
+      if (select) {
+        options.select
       }
       resolve(options)
     } catch (error) {

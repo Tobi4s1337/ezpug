@@ -6,7 +6,6 @@ const { itemNotFound } = require('../../../middleware/utils')
  * @param {string} steamId - user´s steamId
  */
 const findUserBySteamId = (steamId = '') => {
-  console.log(steamId)
   return new Promise((resolve, reject) => {
     User.findOne(
       {

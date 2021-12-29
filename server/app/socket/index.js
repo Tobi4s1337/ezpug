@@ -32,7 +32,6 @@ io.on('connection', (socket) => {
   })
   socket.on('logout', () => {
     logout(socket, io)
-    console.log(socket)
   })
   socket.on('disconnect', disconnect)
 })
