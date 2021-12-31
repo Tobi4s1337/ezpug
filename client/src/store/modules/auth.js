@@ -13,7 +13,7 @@ const getters = {
 }
 
 const actions = {
-  userLogin({ commit }, payload) {
+  userLogin({ commit, dispatch }, payload) {
     return new Promise((resolve, reject) => {
       commit(types.SHOW_LOADING, true)
       api
@@ -43,6 +43,7 @@ const actions = {
             this._vm.$socket.client.emit('authenticate', {
               key: response.data.token
             })
+            dispatch('getProfile')
             buildSuccess(
               null,
               commit,

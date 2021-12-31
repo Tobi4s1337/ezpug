@@ -20,7 +20,7 @@ const io = require('socket.io')(server, {
  * @param {Object} data - data related to event
  */
 const emitPrivateEvent = (userId, event, data) => {
-  io.to(userId).emit(`PRIVATE_${event}`, data)
+  io.to(`private-${userId}`).emit(`PRIVATE_${event}`, data)
 }
 
 /**
@@ -61,9 +61,19 @@ io.on('connection', (socket) => {
       console.log(err)
     }
   })
+
+  socket.on('join-social', (userId) => {
+    socket.join(`social-${userId}`)
+  })
+
+  socket.on('leave-social', (userId) => {
+    socket.leave(`social-${userId}`)
+  })
+
   socket.on('logout', () => {
     logout(socket, io)
   })
+
   socket.on('disconnect', () => {
     if (socket.userId) {
       disconnect(socket.userId)

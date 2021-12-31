@@ -1,7 +1,12 @@
 const { matchedData } = require('express-validator')
 const { isIDGood, handleError } = require('../../middleware/utils')
 
-const { checkExisting, createItemInDb } = require('./helpers')
+const {
+  checkExisting,
+  createItemInDb,
+  notifyRecipient,
+  notifyRequester
+} = require('./helpers')
 
 /**
  * Create friend request function called by route
@@ -15,6 +20,8 @@ const createFriendRequest = async (req, res) => {
     req.requester = id
     await checkExisting(req)
     const friendRequest = await createItemInDb(req)
+    notifyRecipient(friendRequest._id)
+    notifyRequester(friendRequest._id)
     res.status(200).json(friendRequest)
   } catch (error) {
     handleError(res, error)

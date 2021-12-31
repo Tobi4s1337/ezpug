@@ -17,6 +17,9 @@ app.set('port', process.env.PORT || 3001)
 // Setup socket
 require('./app/socket/index')
 
+// Clean up user status (set all to offline)
+require('./app/controllers/users/helpers/resetStatus')()
+
 // Enable only in development HTTP request logger middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))

@@ -1,7 +1,12 @@
 const { matchedData } = require('express-validator')
 const { handleError, isIDGood } = require('../../middleware/utils')
 
-const { addFriendsFromRequest, removeItemInDb } = require('./helpers')
+const {
+  addFriendsFromRequest,
+  removeItemInDb,
+  getItemInDb
+} = require('./helpers')
+const { emitPrivateEvent } = require('../../socket')
 
 /**
  * Accept or decline friend request function called by route
@@ -18,6 +23,24 @@ const updateFriendRequest = async (req, res) => {
     } else {
       res.status(200).json({ msg: 'social.REQUEST_DECLINED' })
     }
+
+    const friendRequest = await getItemInDb(id)
+
+    emitPrivateEvent(
+      friendRequest.recipient,
+      'DELETE_RECEIVED_FRIEND_REQUEST',
+      {
+        id
+      }
+    )
+    emitPrivateEvent(
+      friendRequest.requester,
+      'DELETE_REQUESTED_FRIEND_REQUEST',
+      {
+        id
+      }
+    )
+
     await removeItemInDb(id)
   } catch (error) {
     handleError(res, error)

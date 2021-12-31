@@ -1,5 +1,6 @@
 const User = require('../../../models/user')
 const { buildErrObject } = require('../../../middleware/utils')
+const { emitPrivateEvent } = require('../../../socket')
 
 /**
  * Removes user from friendlist
@@ -31,6 +32,8 @@ const removeFriendFromUser = (userId = '', friendId = '') => {
     try {
       await removeUserFromFriendslist(userId, friendId)
       await removeUserFromFriendslist(friendId, userId)
+      emitPrivateEvent(userId, 'DELETE_FRIEND', { id: friendId })
+      emitPrivateEvent(friendId, 'DELETE_FRIEND', { id: userId })
       resolve()
     } catch (err) {
       reject(err)

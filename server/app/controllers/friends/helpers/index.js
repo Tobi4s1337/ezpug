@@ -7,6 +7,9 @@ const { removeItemInDb } = require('./removeItemInDb')
 const { getFriendsFromDb } = require('./getFriendsFromDb')
 const { addFriendsFromRequest } = require('./addFriendsFromRequest')
 const { removeFriendFromUser } = require('./removeFriendFromUser')
+const { notifyRecipient } = require('./notifyRecipient')
+const { notifyRequester } = require('./notifyRequester')
+const { getItemInDb } = require('./getItemInDb')
 
 module.exports = {
   createItemInDb,
@@ -17,5 +20,8 @@ module.exports = {
   removeItemInDb,
   getFriendsFromDb,
   addFriendsFromRequest,
-  removeFriendFromUser
+  removeFriendFromUser,
+  notifyRecipient,
+  notifyRequester,
+  getItemInDb
 }

@@ -3,7 +3,7 @@
  * @param {object} socket - user socket
  */
 const joinUserRoom = (socket) => {
-  socket.join(socket.userId)
+  socket.join(`private-${socket.userId}`)
 }
 
 module.exports = { joinUserRoom }

@@ -1,21 +1,23 @@
 const FriendRequest = require('../../../models/friendRequest')
 const User = require('../../../models/user')
 const { buildErrObject } = require('../../../middleware/utils')
+const { emitPrivateEvent } = require('../../../socket')
 
 /**
  * Adds user to friendlist
  * @param {String} userId - id of user
- * @param {String} friendId - id of friend
+ * @param {Object} friend - object of friend
  */
-const addUserToFriendlist = (userId = '', friendId = '') => {
+const addUserToFriendlist = (userId, friend) => {
   return new Promise((resolve, reject) => {
     User.findByIdAndUpdate(
       userId,
-      { $push: { friends: friendId } },
+      { $push: { friends: friend._id } },
       (err, updatedUser) => {
         if (err) {
           reject(buildErrObject(422, err))
         }
+        emitPrivateEvent(userId, 'NEW_FRIEND', friend)
         resolve(updatedUser)
       }
     )
@@ -28,24 +30,27 @@ const addUserToFriendlist = (userId = '', friendId = '') => {
  */
 const addFriendsFromRequest = (id = '') => {
   return new Promise((resolve, reject) => {
-    FriendRequest.findById(id, async (err, foundRequest) => {
-      if (err) {
-        reject(buildErrObject(422, err))
-      }
-      try {
-        await addUserToFriendlist(
-          foundRequest.recipient,
-          foundRequest.requester
-        )
-        await addUserToFriendlist(
-          foundRequest.requester,
-          foundRequest.recipient
-        )
-        resolve()
-      } catch (e) {
-        reject(e)
-      }
-    })
+    FriendRequest.findById(id)
+      .populate('recipient', 'name avatar status')
+      .populate('requester', 'name avatar status')
+      .exec(async (err, foundRequest) => {
+        if (err) {
+          reject(buildErrObject(422, err))
+        }
+        try {
+          await addUserToFriendlist(
+            foundRequest.recipient._id,
+            foundRequest.requester
+          )
+          await addUserToFriendlist(
+            foundRequest.requester._id,
+            foundRequest.recipient
+          )
+          resolve()
+        } catch (e) {
+          reject(e)
+        }
+      })
   })
 }
 

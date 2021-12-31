@@ -75,7 +75,6 @@ const actions = {
         .then((response) => {
           if (response.status === 200) {
             commit(types.REMOVE_RECEIVED_FRIEND_REQUEST, payload.id)
-            dispatch('getFriends')
             buildSuccess(
               {
                 msg: response.msg
@@ -137,6 +136,24 @@ const actions = {
   },
   socket_socialChangedStatus({ commit }, payload) {
     commit(types.UPDATE_FRIEND, payload)
+  },
+  socket_privateNewReceivedFriendRequest({ commit }, payload) {
+    commit(types.ADD_SENT_RECEIVED_REQUEST, payload)
+  },
+  socket_privateNewRequestedFriendRequest({ commit }, payload) {
+    commit(types.ADD_SENT_FRIEND_REQUEST, payload)
+  },
+  socket_privateDeleteReceivedFriendRequest({ commit }, payload) {
+    commit(types.REMOVE_RECEIVED_FRIEND_REQUEST, payload.id)
+  },
+  socket_privateDeleteRequestedFriendRequest({ commit }, payload) {
+    commit(types.REMOVE_SENT_FRIEND_REQUEST, payload.id)
+  },
+  socket_privateNewFriend({ commit }, payload) {
+    commit(types.ADD_FRIEND, payload)
+  },
+  socket_privateDeleteFriend({ commit }, payload) {
+    commit(types.REMOVE_FRIEND, payload.id)
   }
 }
 
@@ -151,7 +168,13 @@ const mutations = {
     state.receivedFriendRequests = receivedFriendRequests
   },
   [types.ADD_SENT_FRIEND_REQUEST](state, friendRequest) {
+    if (state.sentFriendRequests.some((e) => e._id === friendRequest._id)) {
+      return
+    }
     state.sentFriendRequests.push(friendRequest)
+  },
+  [types.ADD_SENT_RECEIVED_REQUEST](state, friendRequest) {
+    state.receivedFriendRequests.push(friendRequest)
   },
   [types.REMOVE_SENT_FRIEND_REQUEST](state, friendRequestId) {
     state.sentFriendRequests = state.sentFriendRequests.filter((request) => {
@@ -169,12 +192,19 @@ const mutations = {
     state.friends = state.friends.filter((friend) => {
       return friend._id !== userId
     })
+    this._vm.$socket.client.emit('leave-social', friend._id);
+  },
+  [types.ADD_FRIEND](state, friend) {
+    if (state.friends.some((e) => e._id === friend._id)) {
+      return
+    }
+    state.friends.push(friend)
+    this._vm.$socket.client.emit('join-social', friend._id);
   },
   [types.UPDATE_FRIEND](state, data) {
     const index = state.friends.map((e) => e._id).indexOf(data.userId)
     delete data.userId
     const friend = Object.assign(state.friends[index], data)
-    console.log(friend)
     Vue.set(state.friends, index, Object.assign(state.friends[index], friend))
   }
 }
