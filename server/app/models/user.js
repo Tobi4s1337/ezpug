@@ -52,17 +52,18 @@ const UserSchema = new mongoose.Schema(
     steamId: {
       type: String,
       unique: true,
-      dropDups: true
+      sparse: true
     },
     csgoId: {
       type: String,
       unique: true,
-      dropDups: true
+      sparse: true
     },
     steamUrl: {
       type: String,
+      dropDups: true,
       unique: true,
-      dropDups: true
+      sparse: true
     },
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     sentFriendRequests: [

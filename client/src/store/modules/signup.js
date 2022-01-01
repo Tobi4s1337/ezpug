@@ -21,6 +21,9 @@ const actions = {
             )
             commit(types.SAVE_USER, response.data.user)
             commit(types.SAVE_TOKEN, response.data.token)
+            this._vm.$socket.client.emit('authenticate', {
+              key: response.data.token
+            })
             buildSuccess(
               null,
               commit,

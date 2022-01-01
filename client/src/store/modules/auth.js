@@ -43,7 +43,6 @@ const actions = {
             this._vm.$socket.client.emit('authenticate', {
               key: response.data.token
             })
-            dispatch('getProfile')
             buildSuccess(
               null,
               commit,

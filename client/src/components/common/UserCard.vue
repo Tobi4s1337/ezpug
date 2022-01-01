@@ -50,7 +50,7 @@
         <v-icon right dark> mdi-account-circle </v-icon></v-btn
       >
       <v-btn
-        v-if="!isFriend && !isReceivedRequest && !isSentRequest"
+        v-if="!isFriend && !isReceivedRequest && !isSentRequest && !isUser"
         outlined
         text
         @click="createFriendRequest({ recipient: id })"
@@ -105,7 +105,10 @@ export default {
     rank: Number
   },
   computed: {
-    ...mapGetters(['friends', 'sentFriendRequests', 'receivedFriendRequests']),
+    ...mapGetters(['friends', 'sentFriendRequests', 'receivedFriendRequests', 'user']),
+    isUser() {
+      return this.id === this.user._id;
+    },
     isFriend() {
       return this.friends.some((friend) => friend['_id'] === this.id)
     },

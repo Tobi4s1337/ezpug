@@ -19,7 +19,7 @@
         </v-list-item-avatar>
 
         <v-list-item-content>
-          <v-list-item-title class="user-name">{{ name }}</v-list-item-title>
+          <v-list-item-title class="user-name">{{ user.name }}</v-list-item-title>
           <v-list-item-subtitle class="user-status"
             ><UserStatus
               :status="{ online: true, inQueue: false, inMatch: false }"
@@ -221,10 +221,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['sentFriendRequests', 'receivedFriendRequests', 'friends']),
-    name() {
-      return this.$store.state.profile.profile.name
-    },
+    ...mapGetters(['sentFriendRequests', 'receivedFriendRequests', 'friends', 'user']),
     collapsed() {
       return !(this.hover || this.contextMenuOpen)
     },

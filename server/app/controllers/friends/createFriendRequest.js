@@ -1,5 +1,9 @@
 const { matchedData } = require('express-validator')
-const { isIDGood, handleError } = require('../../middleware/utils')
+const {
+  isIDGood,
+  handleError,
+  buildErrObject
+} = require('../../middleware/utils')
 
 const {
   checkExisting,
@@ -18,6 +22,10 @@ const createFriendRequest = async (req, res) => {
     const id = await isIDGood(req.user._id)
     req = matchedData(req)
     req.requester = id
+    if (req.requester === req.recipient) {
+      throw buildErrObject(422, 'YOU_CANT_ADD_YOURSELF')
+      return
+    }
     await checkExisting(req)
     const friendRequest = await createItemInDb(req)
     notifyRecipient(friendRequest._id)
