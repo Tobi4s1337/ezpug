@@ -19,7 +19,9 @@
         </v-list-item-avatar>
 
         <v-list-item-content>
-          <v-list-item-title class="user-name">{{ user.name }}</v-list-item-title>
+          <v-list-item-title class="user-name">{{
+            user.name
+          }}</v-list-item-title>
           <v-list-item-subtitle class="user-status"
             ><UserStatus
               :status="{ online: true, inQueue: false, inMatch: false }"
@@ -120,7 +122,7 @@
               :id="request.requester._id"
               rank="32"
               elo="1337"
-              :status="{ online: true, inQueue: true, inMatch: false }"
+              :status="{ hidden: true }"
             />
           </v-list>
           <v-list class="offline-list" dense>
@@ -141,12 +143,7 @@
               :id="request.recipient._id"
               rank="32"
               elo="1337"
-              :status="{
-                online: false,
-                inQueue: false,
-                inMatch: false,
-                lastSeen: '2021-09-01T13:58:34+0000'
-              }"
+              :status="{ hidden: true }"
             />
           </v-list>
         </v-list>
@@ -157,13 +154,21 @@
           class="overflow-y-auto px-0"
           style="max-height: calc(100% - 120px); scrollbar-width: none"
         >
+          <v-list class="search-wrapper">
+            <v-text-field
+              prepend-inner-icon="mdi-magnify"
+              v-model="search"
+              filled
+              clearable
+              dense
+              autofocus
+              hide-details
+              solo
+            ></v-text-field>
+          </v-list>
           <v-list class="online-list">
-            <v-subheader class="friendlist-subheader"
-              ><v-icon left color="#90ba3c">mdi-access-point</v-icon>Freunde
-              Online (4)</v-subheader
-            >
             <FriendItem
-              v-for="friend in onlineFriends"
+              v-for="friend in filteredFriends"
               :key="friend._id"
               type="FRIEND"
               :name="friend.name"
@@ -172,31 +177,7 @@
               id="props.item._id"
               rank="32"
               elo="1337"
-              :status="{ online: true, inQueue: true, inMatch: false }"
-            />
-          </v-list>
-          <v-list class="offline-list" dense>
-            <v-divider></v-divider>
-            <v-subheader class="friendlist-subheader"
-              ><v-icon left color="grey">mdi-access-point-remove</v-icon>Freunde
-              Offline (8)</v-subheader
-            >
-            <FriendItem
-              v-for="i in 8"
-              :key="i"
-              type="FRIEND"
-              name="SnackZerlegR"
-              avatar="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
-              steam-url="props.item.steamUrl"
-              id="props.item._id"
-              rank="32"
-              elo="1337"
-              :status="{
-                online: false,
-                inQueue: false,
-                inMatch: false,
-                lastSeen: '2021-09-01T13:58:34+0000'
-              }"
+              :status="friend.status"
             />
           </v-list>
         </v-list>
@@ -217,11 +198,17 @@ export default {
     return {
       selectedList: 0,
       contextMenuOpen: false,
-      hover: false
+      hover: false,
+      search: ''
     }
   },
   computed: {
-    ...mapGetters(['sentFriendRequests', 'receivedFriendRequests', 'friends', 'user']),
+    ...mapGetters([
+      'sentFriendRequests',
+      'receivedFriendRequests',
+      'friends',
+      'user'
+    ]),
     collapsed() {
       return !(this.hover || this.contextMenuOpen)
     },
@@ -239,6 +226,16 @@ export default {
           !friend.status.inQueue &&
           !friend.status.inMatch
         )
+      })
+    },
+    filteredFriends() {
+      if (this.search.length < 1) {
+        return this.friends
+      }
+
+      const search = this.search.toLowerCase()
+      return this.friends.filter((friend) => {
+        return friend.name.toLowerCase().includes(search)
       })
     }
   },
@@ -410,5 +407,9 @@ html {
 }
 .friendlist-content {
   min-height: 100%;
+}
+.search-wrapper .v-input.v-text-field {
+  margin-left: 12px;
+  margin-right: 12px;
 }
 </style>

@@ -18,7 +18,7 @@
         <v-list-item-content>
           <v-list-item-title class="user-name">{{ name }}</v-list-item-title>
           <v-list-item-subtitle class="user-status"
-            ><UserStatus :status="status"
+            ><UserStatus v-if="!status.hidden" :status="status"
           /></v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>

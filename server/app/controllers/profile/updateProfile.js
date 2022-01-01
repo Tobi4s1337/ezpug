@@ -1,7 +1,7 @@
 const { isIDGood, handleError } = require('../../middleware/utils')
 const { matchedData } = require('express-validator')
 const { updateProfileInDB } = require('./helpers')
-const { emitSocialEvent } = require('../../socket')
+const { emitSocialEvent, emitPrivateEvent } = require('../../socket')
 
 /**
  * Update profile function called by route
@@ -16,6 +16,7 @@ const updateProfile = async (req, res) => {
     res.status(200).json(await updateProfileInDB(req, id))
     if (req.name !== prevName) {
       emitSocialEvent(id, 'CHANGED_NAME', { name: req.name })
+      emitPrivateEvent(id, 'UPDATE_USER', { name: req.name })
     }
   } catch (error) {
     handleError(res, error)

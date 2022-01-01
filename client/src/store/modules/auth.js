@@ -102,6 +102,9 @@ const actions = {
     router.push({
       name: 'login'
     })
+  },
+  socket_privateUpdateUser({ commit }, payload) {
+    commit(types.UPDATE_USER, payload)
   }
 }
 
@@ -117,6 +120,9 @@ const mutations = {
   },
   [types.SAVE_USER](state, user) {
     state.user = user
+  },
+  [types.UPDATE_USER](state, user) {
+    state.user = Object.assign({}, state.user, user)
   }
 }
 
