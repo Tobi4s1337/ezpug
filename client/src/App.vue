@@ -3,6 +3,11 @@
     <Toolbar />
     <v-main class="text-center">
       <FriendsSidebar v-if="user" />
+      <TeamspeakDialog
+        v-if="profile.name && !profile.teamSpeakId && !showLoading"
+        ref="teamspeak"
+      />
+      {{ profile }}
       <loading />
       <v-container fluid>
         <transition name="fade" mode="out-in">
@@ -19,6 +24,7 @@ import { mapActions, mapGetters } from 'vuex'
 import Toolbar from '@/components/core/Toolbar.vue'
 import Loading from '@/components/core/Loading.vue'
 import Footer from '@/components/core/Footer.vue'
+import TeamspeakDialog from '@/components/TeamspeakDialog.vue'
 
 export default {
   name: 'App',
@@ -64,10 +70,11 @@ export default {
   components: {
     Toolbar,
     Loading,
-    Footer
+    Footer,
+    TeamspeakDialog
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'profile', 'showLoading']),
     appTitle() {
       return this.$store.getters.appTitle
     }
@@ -82,12 +89,13 @@ export default {
           key: this.$store.getters.token
         })
       }
+    },
+    async authenticated() {
+      await this.getProfile()
+      if (!this.profile.teamSpeakId) {
+        this.$refs.teamspeak.getUsers()
+      }
     }
-  },
-  mounted() {
-    this.$nextTick(function () {
-      this.getProfile()
-    })
   }
 }
 </script>

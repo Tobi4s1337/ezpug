@@ -66,6 +66,33 @@ const actions = {
         })
     })
   },
+  unlinkTeamSpeak({ commit }) {
+    return new Promise((resolve, reject) => {
+      commit(types.SHOW_LOADING, true)
+      api
+        .unlinkTeamSpeak()
+        .then((response) => {
+          if (response.status === 200) {
+            commit(types.ADD_PROFILE_DATA, { key: 'teamSpeakId', value: null })
+            buildSuccess(
+              {
+                msg: 'teamspeak.UNLINKED'
+              },
+              commit,
+              resolve
+            )
+
+            // hacky, but who cares
+            setTimeout(()=> {
+              location.reload();
+            }, 1500)
+          }
+        })
+        .catch((error) => {
+          handleError(error, commit, reject)
+        })
+    })
+  },
   addProfileData({ commit }, data) {
     commit(types.ADD_PROFILE_DATA, data)
   }
@@ -79,6 +106,7 @@ const mutations = {
     state.profile.steamId = data.steamId
     state.profile.csgoId = data.csgoId
     state.profile.steamUrl = data.steamUrl
+    state.profile.teamSpeakId = data.teamSpeakId
   },
   [types.ADD_PROFILE_DATA](state, data) {
     switch (data.key) {
@@ -94,6 +122,9 @@ const mutations = {
       case 'csgoId':
         state.profile.csgoId = data.value
         break
+      case 'teamSpeakId':
+        state.profile.teamSpeakId = data.value
+        break
       default:
         break
     }
@@ -107,7 +138,8 @@ const state = {
     email: '',
     steamId: '',
     csgoId: '',
-    steamUrl: ''
+    steamUrl: '',
+    teamSpeakId: ''
   }
 }
 

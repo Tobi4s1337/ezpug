@@ -8,13 +8,49 @@ const { emitPrivateEvent, emitSocialEvent } = require('../../../socket')
  */
 const updateStatus = (userId, status) => {
   return new Promise((resolve, reject) => {
-    User.findByIdAndUpdate(userId, { $set: { status } }, (err, updatedUser) => {
-      if (err) {
-        reject(err)
+    User.findById(userId, (err, foundUser) => {
+      if (err || !foundUser) {
+        return reject(err)
       }
-      emitSocialEvent(userId, 'CHANGED_STATUS', { userId, status })
-      emitPrivateEvent(userId, 'CHANGED_STATUS', { userId, status })
-      resolve(updatedUser)
+
+      const newStatus = foundUser.status
+
+      if (status.online === true) {
+        newStatus.online = true
+      }
+
+      if (status.online === false) {
+        newStatus.online = false
+      }
+
+      if (status.lastSeen) {
+        newStatus.lastSeen = status.lastSeen
+      }
+
+      if (status.teamSpeak === true) {
+        newStatus.teamSpeak = true
+      }
+
+      if (status.teamSpeak === false) {
+        newStatus.teamSpeak = false
+      }
+
+      User.findByIdAndUpdate(
+        userId,
+        { $set: { status: newStatus } },
+        (error, updatedUser) => {
+          if (error) {
+            return reject(error)
+          }
+          emitSocialEvent(userId, 'CHANGED_STATUS', {
+            userId,
+            status: newStatus
+          })
+          emitPrivateEvent(userId, 'UPDATE_USER', { status: newStatus })
+          resolve(updatedUser)
+          console.log(status)
+        }
+      )
     })
   })
 }

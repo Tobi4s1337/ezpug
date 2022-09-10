@@ -3,6 +3,8 @@ const {
 } = require('../../controllers/auth/helpers/getUserIdFromToken')
 const { updateStatus } = require('../../controllers/users/helpers/updateStatus')
 
+const initTeamSpeak = require('../../../initTeamSpeak')
+
 /**
  * Authenticates user socket connection
  * @param {object} socket - user socket
@@ -20,7 +22,8 @@ const authenticate = (socket, { key = '' }) => {
       reject(err)
     }
   })
-  // return new Promise(async (resolve, reject) => {})
 }
+
+initTeamSpeak()
 
 module.exports = { authenticate }

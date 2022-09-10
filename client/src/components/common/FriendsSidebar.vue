@@ -6,7 +6,7 @@
     mini-variant-width="78"
     class="text-left friendlist"
     stateless="true"
-    :mini-variant="collapsed"
+    :mini-variant="false"
     @mouseover.native="hover = true"
     @mouseleave.native="hover = false"
   >
@@ -24,7 +24,7 @@
           }}</v-list-item-title>
           <v-list-item-subtitle class="user-status"
             ><UserStatus
-              :status="{ online: true, inQueue: false, inMatch: false }"
+              :status="user.status"
           /></v-list-item-subtitle>
           <v-list-item-subtitle class="user-stats"
             ><span class="user-rank mr-2">Rank: 13</span
@@ -187,9 +187,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { handleError } from '../../utils/utils'
-import { getSince } from '@/utils/utils.js'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -229,7 +226,7 @@ export default {
       })
     },
     filteredFriends() {
-      if (this.search.length < 1) {
+      if (!this.search || this.search.length < 1) {
         return this.friends
       }
 
@@ -246,7 +243,7 @@ export default {
     }
   },
   mounted() {
-    this.$nextTick(function () {
+    this.$nextTick(() => {
       this.getFriends()
       this.getFriendRequests()
     })
@@ -371,6 +368,7 @@ html {
   }
   .v-list-item__subtitle.user-status {
     font-size: 0.775rem;
+    overflow: visible;
   }
   .v-slide-group:not(.v-slide-group--has-affixes) > .v-slide-group__prev,
   .v-slide-group:not(.v-slide-group--has-affixes) > .v-slide-group__next {

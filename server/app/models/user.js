@@ -27,6 +27,9 @@ const UserSchema = new mongoose.Schema(
       required: true,
       select: false
     },
+    teamSpeakCode: {
+      type: String
+    },
     role: {
       type: String,
       enum: ['user', 'admin'],
@@ -53,6 +56,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       unique: true,
       sparse: true
+    },
+    teamSpeakId: {
+      type: String,
+      unique: true
     },
     csgoId: {
       type: String,
@@ -88,6 +95,10 @@ const UserSchema = new mongoose.Schema(
       lastSeen: {
         type: Date,
         default: Date.now()
+      },
+      teamSpeak: {
+        type: Boolean,
+        default: false
       }
     }
   },

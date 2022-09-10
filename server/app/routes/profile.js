@@ -12,7 +12,11 @@ const { roleAuthorization } = require('../controllers/auth')
 const {
   getProfile,
   updateProfile,
-  changePassword
+  changePassword,
+  getTeamSpeakUsers,
+  linkTeamSpeakRequest,
+  redeemTeamSpeakCode,
+  unlinkTeamSpeak
 } = require('../controllers/profile')
 
 const {
@@ -57,6 +61,47 @@ router.post(
   trimRequest.all,
   validateChangePassword,
   changePassword
+)
+
+/*
+ * Get items route
+ */
+router.get(
+  '/teamSpeakUsers',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  getTeamSpeakUsers
+)
+
+router.post(
+  '/unlinkTeamSpeak',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  unlinkTeamSpeak
+)
+
+/*
+ * Get items route
+ */
+router.post(
+  '/linkTeamSpeak',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  linkTeamSpeakRequest
+)
+
+/*
+ * Get items route
+ */
+router.post(
+  '/teamSpeakCode',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  redeemTeamSpeakCode
 )
 
 module.exports = router

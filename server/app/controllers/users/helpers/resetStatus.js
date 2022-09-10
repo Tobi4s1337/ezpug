@@ -6,8 +6,8 @@ const User = require('../../../models/user')
 module.exports = () => {
   return new Promise((resolve, reject) => {
     User.updateMany(
-      { status: { online: true } },
-      { status: { online: false, lastSeen: Date.now() } },
+      { 'status.online': true },
+      { status: { online: false, lastSeen: Date.now(), teamSpeak: false } },
       { multi: true },
       (err, modified) => {
         if (err) {

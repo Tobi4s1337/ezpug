@@ -167,6 +167,7 @@ export default {
 <style scoped lang="scss">
 .online {
   .v-list-item__subtitle.user-status {
+    overflow: visible;
     color: #57cbde;
   }
   .v-avatar.user-avatar {
@@ -175,6 +176,7 @@ export default {
 }
 .offline {
   .v-list-item__subtitle.user-status {
+    overflow: visible;
     color: #898989;
   }
   .v-avatar.user-avatar {
@@ -183,6 +185,7 @@ export default {
 }
 .online.active {
   .v-list-item__subtitle.user-status {
+    overflow: visible;
     color: #90ba3c;
   }
   .v-avatar.user-avatar {

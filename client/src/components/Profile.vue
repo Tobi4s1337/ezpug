@@ -165,6 +165,12 @@
         <v-btn :href="steamUrl" target="_blank">Steam</v-btn>
       </v-flex>
     </v-layout>
+    <v-layout>
+      <v-flex xs12 v-if="teamSpeakId">
+        <h3 class="mt-5 mb-2">Unlink Your TeamSpeak Identity</h3>
+        <v-btn @click="unlinkTeamSpeak()">Unlink TeamSpeak</v-btn>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -206,6 +212,9 @@ export default {
     },
     steamUrl() {
       return this.$store.state.profile.profile.steamUrl
+    },
+    teamSpeakId() {
+      return this.$store.state.profile.profile.teamSpeakId
     }
   },
   methods: {
@@ -213,7 +222,8 @@ export default {
       'changeMyPassword',
       'getProfile',
       'addProfileData',
-      'saveProfile'
+      'saveProfile',
+      'unlinkTeamSpeak'
     ]),
     async submit() {
       await this.saveProfile({

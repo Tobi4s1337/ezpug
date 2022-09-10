@@ -56,6 +56,8 @@ io.on('connection', (socket) => {
     try {
       await authenticate(socket, data)
       await joinRooms(socket)
+
+      socket.emit('authenticated')
       console.log('Joined all rooms')
     } catch (err) {
       console.log(err)

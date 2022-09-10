@@ -152,6 +152,10 @@
     "SAVE": "Save",
     "PROFILE_SAVED_SUCCESSFULLY": "Profile saved successfuly"
   },
+  "teamspeak": {
+    "TITLE": "Link Teamspeak Identity",
+    "UNLINKED": "TeamSpeak unlinked successfully"
+  },
   "status": {
     "ONLINE": "Online",
     "IN_QUEUE": "In Queue",

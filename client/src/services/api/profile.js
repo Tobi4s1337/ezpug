@@ -9,5 +9,8 @@ export default {
   },
   saveProfile(payload) {
     return axios.patch('/profile', payload)
+  },
+  unlinkTeamSpeak() {
+    return axios.post('/profile/unlinkTeamSpeak')
   }
 }
