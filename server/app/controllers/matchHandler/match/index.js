@@ -150,6 +150,10 @@ class Match {
   }
 
   setPlayerVetoTimeout() {
+    if (this._timeout) {
+      clearTimeout(this._timeout)
+    }
+
     this._timeout = setTimeout(() => {
       // pick random available player
       this._timeout = null
@@ -173,6 +177,10 @@ class Match {
   }
 
   setMapVetoTimeout() {
+    if (this._timeout) {
+      clearTimeout(this._timeout)
+    }
+
     this._timeout = setTimeout(() => {
       // ban random available map
       this._timeout = null

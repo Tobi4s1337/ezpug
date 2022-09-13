@@ -1,6 +1,7 @@
 const app = require('../../server')
 const server = require('http').createServer(app)
-const MatchHandler = require('../controllers/matchHandler')
+const Logger = require('../Logger')
+const logger = new Logger('Socket')
 server.listen(process.env.SOCKETIO_PORT || 3003)
 
 // require helper functions
@@ -31,7 +32,6 @@ const emitPrivateEvent = (userId, event, data) => {
  */
 const emitSocialEvent = (userId, event, data) => {
   data.userId = userId
-  console.log(`social-${userId}`)
   io.to(`social-${userId}`).emit(`SOCIAL_${event}`, data)
 }
 
@@ -52,12 +52,24 @@ const emitMatchEvent = (matchId, event, data) => {
   io.to(`matchId-${matchId}`).emit(`MATCH_${event}`, data)
 }
 
+/**
+ * @param {String} event - event title
+ * @param {Object} data - data related to event
+ */
+const emitQueueEvent = (event, data) => {
+  io.to(`queue`).emit(`QUEUE_${event}`, data)
+}
+
 module.exports = {
   emitPrivateEvent,
   emitSocialEvent,
   emitPublicEvent,
-  emitMatchEvent
+  emitMatchEvent,
+  emitQueueEvent
 }
+
+const MatchHandler = require('../controllers/matchHandler')
+const Queue = require('../controllers/queue')
 
 // require events
 const { authenticate, disconnect, logout } = require('./events')
@@ -71,11 +83,8 @@ io.on('connection', (socket) => {
     try {
       await authenticate(socket, data)
       await joinRooms(socket)
-
-      socket.emit('authenticated')
-      console.log('Joined all rooms')
     } catch (err) {
-      console.log(err)
+      logger.err('Issue authenticating user', err)
     }
   })
 
@@ -87,6 +96,16 @@ io.on('connection', (socket) => {
     socket.join(`match-${matchId}`)
   })
 
+  socket.on('queue-message', async (msg) => {
+    try {
+      const queue = await Queue.getInstance()
+
+      queue.onMessage({ userId: socket.userId, event: msg.event })
+    } catch (err) {
+      logger.err('Issue handling queue-message', err)
+    }
+  })
+
   socket.on('match-message', async (msg) => {
     if (!msg.matchId || !socket.userId || !msg.event || !msg.data) {
       return
@@ -96,7 +115,7 @@ io.on('connection', (socket) => {
       const matchHandler = await MatchHandler.getInstance()
 
       if (!matchHandler.matches[msg.matchId]) {
-        return console.log('Match not found')
+        return logger.warn('No match found')
       }
 
       matchHandler.matches[msg.matchId].onMessage({
@@ -105,7 +124,7 @@ io.on('connection', (socket) => {
         data: msg.data
       })
     } catch (err) {
-      console.log('Issue forwarding Match event', err)
+      logger.err('Issue forwarding Match event', err)
     }
   })
 
