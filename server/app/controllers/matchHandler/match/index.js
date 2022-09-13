@@ -1,45 +1,10 @@
-/* 
-Match Class
+const {
+  emitPublicEvent,
+  emitMatchEvent,
+  emitPrivateEvent
+} = require('../../../socket')
 
-    - constructor
-    - - If match Id is given load match from db
-    - - If no match Id is given, handle cases based on type (pug, 1v1, 2v2, custom)
-
-    - data
-    - - type
-    - - players
-    - - teamOne
-    - - - name
-    - - - captain
-    - - - players
-    - - teamTwo
-    - - - name
-    - - - captain
-    - - - players
-    - - status (playerveto | mapveto | active | finished)
-    - - teamSpeak
-    - - - mainCid
-    - - - statusCid
-    - - - talkCid
-    - - - teamOneCid
-    - - - teamTwoCid
-    - - mapVeto:
-    - - - pool
-    - - - teamOneBans
-    - - - teamTwoBans
-    - - map
-    - - server
-
-    - loadMatchFromDb
-    - createPUG
-    - pickPlayer
-    - banMap
-    - updateRoomState
-
-    getters
-    - roomState
-
-*/
+const { updateStatus } = require('../../users/helpers/updateStatus')
 
 const Logger = require('../../../Logger')
 const logger = new Logger('MatchRoom')
@@ -52,7 +17,6 @@ const {
   getTeamCaptains,
   getTimeLeft
 } = require('./helpers/index.js')
-const { emitMatchEvent } = require('../../../socket/index')
 const TeamSpeakHandler = require('../../../controllers/teamSpeak')
 
 const COUNTDOWN_TIME = 1000 * 30 // 30 seconds
@@ -127,14 +91,56 @@ class Match {
 
         const match = await createMatchInDb({ data: this.matchStateDbFriendly })
         this._matchId = match._id
+        this._teamOne.captain = match.teamOne.teamOneCaptain
+        this._teamOne.players = match.teamOne.players
+        this._players = match.players
+        this._teamTwo.players = match.teamTwo.players
+        this._teamTwo.captain = match.teamTwo.captain
 
         resolve(match)
 
         this.startPlayerVeto()
+        this.updatePlayersStatus()
       } catch (err) {
         reject(err)
       }
     })
+  }
+
+  async updatePlayersStatus() {
+    try {
+      const teamOnePlayers = playersToIds(this._teamOne.players).push(
+        this._teamOne.captain._id
+      )
+
+      const teamTwoPlayers = playersToIds(this._teamTwo.players).push(
+        this._teamTwo.captain._id
+      )
+
+      let status = {
+        active: true,
+        isTeamOne: false,
+        status: this._status,
+        score: {
+          teamOne: this._teamOne.score,
+          teamTwo: this._teamTwo.score
+        }
+      }
+
+      for (const player of teamOnePlayers) {
+        status.isTeamOne = true
+
+        await updateStatus(player, { match: status })
+      }
+
+      for (const player of teamTwoPlayers) {
+        status.isTeamOne = false
+
+        await updateStatus(player, { match: status })
+      }
+    } catch (err) {
+      logger.err('Failed updating players status', err)
+    }
   }
 
   startMatch() {
@@ -207,6 +213,7 @@ class Match {
     this._status = 'mapveto'
     this.emitEvent({ event: 'status-update', data: { status: 'mapveto' } })
     this.setMapVetoTimeout()
+    this.updatePlayersStatus()
   }
 
   updateRemoteMatchState() {

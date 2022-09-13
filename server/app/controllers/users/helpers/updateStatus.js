@@ -19,6 +19,10 @@ const updateStatus = (userId, status) => {
         newStatus.online = true
       }
 
+      if (status.match) {
+        newStatus.match = status.match
+      }
+
       if (status.online === false) {
         newStatus.online = false
       }

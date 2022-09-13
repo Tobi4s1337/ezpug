@@ -71,7 +71,6 @@ class Queue {
     this._readyPlayers.push(userId)
 
     if (this._readyPlayers.length === 10) {
-      // wow we have 10, lets goo
       clearTimeout(this._timeout)
       this.createMatch()
     }

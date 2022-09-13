@@ -12,8 +12,8 @@ const UserSchema = new mongoose.Schema(
       required: true,
       unique: true
     },
-    avatar : {
-      type: String,
+    avatar: {
+      type: String
     },
     email: {
       type: String,
@@ -91,9 +91,29 @@ const UserSchema = new mongoose.Schema(
         type: Boolean,
         default: false
       },
-      inMatch: {
-        type: Boolean,
-        default: false
+      match: {
+        active: {
+          type: Boolean,
+          default: false
+        },
+        isTeamOne: {
+          type: Boolean,
+          default: false
+        },
+        status: {
+          type: String,
+          enum: ['playerveto', 'mapveto', 'active', 'finished']
+        },
+        score: {
+          teamOne: {
+            type: Number,
+            default: 0
+          },
+          teamTwo: {
+            type: Number,
+            default: 0
+          }
+        }
       },
       lastSeen: {
         type: Date,
