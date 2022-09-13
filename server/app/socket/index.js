@@ -1,5 +1,6 @@
 const app = require('../../server')
 const server = require('http').createServer(app)
+const MatchHandler = require('../controllers/matchHandler')
 server.listen(process.env.SOCKETIO_PORT || 3003)
 
 // require helper functions
@@ -42,7 +43,21 @@ const emitPublicEvent = (event, data) => {
   io.emit(`PUBLIC_${event}`, data)
 }
 
-module.exports = { emitPrivateEvent, emitSocialEvent, emitPublicEvent }
+/**
+ * @param {String} matchId - id of match
+ * @param {String} event - event title
+ * @param {Object} data - data related to event
+ */
+const emitMatchEvent = (matchId, event, data) => {
+  io.to(`matchId-${matchId}`).emit(`MATCH_${event}`, data)
+}
+
+module.exports = {
+  emitPrivateEvent,
+  emitSocialEvent,
+  emitPublicEvent,
+  emitMatchEvent
+}
 
 // require events
 const { authenticate, disconnect, logout } = require('./events')
@@ -66,6 +81,32 @@ io.on('connection', (socket) => {
 
   socket.on('join-social', (userId) => {
     socket.join(`social-${userId}`)
+  })
+
+  socket.on('join-match', (matchId) => {
+    socket.join(`match-${matchId}`)
+  })
+
+  socket.on('match-message', async (msg) => {
+    if (!msg.matchId || !socket.userId || !msg.event || !msg.data) {
+      return
+    }
+
+    try {
+      const matchHandler = await MatchHandler.getInstance()
+
+      if (!matchHandler.matches[msg.matchId]) {
+        return console.log('Match not found')
+      }
+
+      matchHandler.matches[msg.matchId].onMessage({
+        userId: socket.userId,
+        event: msg.event,
+        data: msg.data
+      })
+    } catch (err) {
+      console.log('Issue forwarding Match event', err)
+    }
   })
 
   socket.on('leave-social', (userId) => {

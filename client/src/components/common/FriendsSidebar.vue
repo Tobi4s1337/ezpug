@@ -6,7 +6,7 @@
     mini-variant-width="78"
     class="text-left friendlist"
     stateless="true"
-    :mini-variant="false"
+    :mini-variant="collapsed"
     @mouseover.native="hover = true"
     @mouseleave.native="hover = false"
   >

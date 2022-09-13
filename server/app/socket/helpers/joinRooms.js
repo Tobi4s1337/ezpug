@@ -22,7 +22,6 @@ const joinRooms = (socket) => {
       reject(err)
     }
   })
-  // return new Promise(async (resolve, reject) => {})
 }
 
 module.exports = { joinRooms }

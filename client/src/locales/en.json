@@ -175,5 +175,8 @@
     "CANCELLED_SUCCESSFULLY": "Friend request cancelled successfully",
     "SEND_MESSAGE": "Send Message",
     "ACCEPT_REQUEST": "Accept"
+  },
+  "match": {
+    "TITLE": "Match Page"
   }
 }

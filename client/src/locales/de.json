@@ -172,5 +172,8 @@
     "CANCEL_REQUEST": "Zurückziehen",
     "SEND_MESSAGE": "Nachricht senden",
     "ACCEPT_REQUEST": "Annehmen"
+  },
+  "match": {
+    "TITLE": "Match Page"
   }
 }
