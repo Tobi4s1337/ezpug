@@ -19,7 +19,8 @@ const {
   unlinkTeamSpeak,
   linkWhatsAppRequest,
   redeemWhatsAppCode,
-  unlinkWhatsApp
+  unlinkWhatsApp,
+  toggleWhatsAppEnabled
 } = require('../controllers/profile')
 
 const {
@@ -135,6 +136,14 @@ router.post(
   roleAuthorization(['admin', 'user']),
   trimRequest.all,
   redeemWhatsAppCode
+)
+
+router.patch(
+  '/whatsAppEnabled',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  toggleWhatsAppEnabled
 )
 
 module.exports = router

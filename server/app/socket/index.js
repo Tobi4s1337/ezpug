@@ -39,7 +39,7 @@ const emitSocialEvent = (userId, event, data) => {
  * @param {String} event - event title
  * @param {Object} data - data related to event
  */
-const emitPublicEvent = (event, data) => {
+const emitPublicEvent = ({ event, data }) => {
   io.emit(`PUBLIC_${event}`, data)
 }
 
@@ -99,7 +99,6 @@ io.on('connection', (socket) => {
   socket.on('queue-message', async (msg) => {
     try {
       const queue = await Queue.getInstance()
-
       queue.onMessage({ userId: socket.userId, event: msg.event })
     } catch (err) {
       logger.error('Issue handling queue-message', err)
@@ -136,9 +135,16 @@ io.on('connection', (socket) => {
     logout(socket, io)
   })
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     if (socket.userId) {
       disconnect(socket.userId)
+
+      try {
+        const queue = await Queue.getInstance()
+        queue.onMessage({ userId: socket.userId, event: 'leave' })
+      } catch (err) {
+        logger.error('Issue handling queue-message', err)
+      }
     }
   })
 })

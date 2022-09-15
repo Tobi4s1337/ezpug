@@ -83,9 +83,45 @@ const actions = {
             )
 
             // hacky, but who cares
-            setTimeout(()=> {
-              location.reload();
+            setTimeout(() => {
+              location.reload()
             }, 1500)
+          }
+        })
+        .catch((error) => {
+          handleError(error, commit, reject)
+        })
+    })
+  },
+  toggleWhatsAppEnabled({ commit }) {
+    return new Promise((resolve, reject) => {
+      commit(types.SHOW_LOADING, true)
+      api
+        .toggleWhatsAppEnabled()
+        .then((response) => {
+          if (response.status === 200) {
+            commit(types.ADD_PROFILE_DATA, {
+              key: 'whatsAppEnabled',
+              value: response.data.whatsAppEnabled
+            })
+
+            if (response.data.whatsAppEnabled) {
+              return buildSuccess(
+                {
+                  msg: 'whatsApp.ENABLED'
+                },
+                commit,
+                resolve
+              )
+            }
+
+            buildSuccess(
+              {
+                msg: 'whatsApp.DISABLED'
+              },
+              commit,
+              resolve
+            )
           }
         })
         .catch((error) => {
@@ -107,6 +143,8 @@ const mutations = {
     state.profile.csgoId = data.csgoId
     state.profile.steamUrl = data.steamUrl
     state.profile.teamSpeakId = data.teamSpeakId
+    state.profile.phone = data.phone
+    state.profile.whatsAppEnabled = data.whatsAppEnabled
   },
   [types.ADD_PROFILE_DATA](state, data) {
     switch (data.key) {
@@ -125,6 +163,12 @@ const mutations = {
       case 'teamSpeakId':
         state.profile.teamSpeakId = data.value
         break
+      case 'phone':
+        state.profile.phone = data.value
+        break
+      case 'whatsAppEnabled':
+        state.profile.whatsAppEnabled = data.value
+        break
       default:
         break
     }
@@ -139,7 +183,9 @@ const state = {
     steamId: '',
     csgoId: '',
     steamUrl: '',
-    teamSpeakId: ''
+    teamSpeakId: '',
+    phone: '',
+    whatsAppEnabled: ''
   }
 }
 

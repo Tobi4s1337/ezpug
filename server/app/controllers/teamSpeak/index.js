@@ -2,6 +2,10 @@ const EventEmitter = require('events').EventEmitter
 const User = require('../../models/user')
 const { TeamSpeak } = require('ts3-nodejs-library')
 
+const generateCode = () => {
+  return (Math.floor(Math.random() * 10000) + 10000).toString().substring(1)
+}
+
 const createMatchChannelTitle = (teamOneName, teamTwoName) => {
   let title = teamOneName + ' vs. ' + teamTwoName
 
@@ -181,7 +185,7 @@ class TeamSpeakHandler extends EventEmitter {
       })
 
       this._queueChannel = await this.createChannel({
-        title: '[cspacer#4][0] In der Warteschlange',
+        title: `[cspacer#${generateCode()}][0] In der Warteschlange`,
         noJoin: true,
         cpid: 0,
         channelOrder
@@ -238,7 +242,7 @@ class TeamSpeakHandler extends EventEmitter {
           this._dropsChannel = channel
         }
 
-        if (name.includes('[cspacer#4]')) {
+        if (name.includes('In der Warteschlange')) {
           this._queueChannel = channel
         }
       }
@@ -400,7 +404,7 @@ class TeamSpeakHandler extends EventEmitter {
 
   async editChannel({ cid, options }) {
     try {
-      this._teamSpeak.editChannel({ cid, options })
+      await this._teamSpeak.channelEdit(cid, options)
     } catch (err) {
       console.log('Error editing channel', err)
     }

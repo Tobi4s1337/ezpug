@@ -17,6 +17,20 @@ const getUserLinkedToPhone = ({ phone }) => {
   })
 }
 
+const getPhoneLinkedToUser = ({ userId }) => {
+  return new Promise((resolve, reject) => {
+    User.findById(userId, (err, foundUser) => {
+      if (err || !foundUser || !foundUser.phone) {
+        return reject(
+          err ? err : 'No user found or user doesnt have phone linked'
+        )
+      }
+
+      resolve(foundUser.phone)
+    })
+  })
+}
+
 /**
  * @var {Promise<WhatsAppHandler>}
  */
@@ -32,7 +46,7 @@ class WhatsAppHandler extends EventEmitter {
     logger.info('Creating WhatsAppHandler')
     this._axios = ''
     this._apiBaseUrl = 'http://94.130.180.183:3333'
-    this._key = 'ezpug'
+    this._key = 'ezpug2'
   }
 
   async init() {
@@ -72,10 +86,15 @@ class WhatsAppHandler extends EventEmitter {
     })
   }
 
-  async sendMessage({ phone, msg }) {
+  async sendMessage({ phone, msg, userId }) {
     try {
+      let vPhone = phone
+      if (!phone && userId) {
+        vPhone = await getPhoneLinkedToUser({ userId })
+      }
+
       const data = JSON.stringify({
-        id: phone,
+        id: vPhone,
         message: msg
       })
 

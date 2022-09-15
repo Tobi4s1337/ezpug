@@ -50,7 +50,7 @@ const redeemWhatsAppCode = async (req, res) => {
       whatsAppHandler.sendMessage({
         phone: req.body.phone,
         msg:
-          'Dein EZPUG Profil ist jetzt mit diesem WhatsApp Account verknüpft!'
+          'Dein EZPUG Profil ist jetzt mit diesem WhatsApp Account verknüpft! 🥳🎉'
       })
       return
     }

@@ -7,10 +7,14 @@ const {
   emitQueueEvent,
   emitPrivateEvent
 } = require('../../socket')
-const { allowedToJoin, idsToNames } = require('./helpers')
+const { allowedToJoin, idsToNames, notifyWhatsAppUser } = require('./helpers')
 const { updateStatus } = require('../users/helpers/updateStatus')
 
-const COUNTDOWN_TIME = 1000 * 20 // 20 seconds
+const COUNTDOWN_TIME = 1000 * 30 // 30 seconds
+
+const generateCode = () => {
+  return (Math.floor(Math.random() * 10000) + 10000).toString().substring(1)
+}
 
 /**
  * @var {Promise<Queue>}
@@ -28,17 +32,23 @@ class Queue {
     this._timeout = null
     this._possiblePlayers = []
     this._readyPlayers = []
+    this._whatsAppReady = []
   }
 
   init() {
     try {
       this.announceChange()
+
+      return this
     } catch (err) {
       logger.error('Error creating Queue:', err)
     }
   }
 
   async onMessage({ userId, event }) {
+    console.log('new event')
+    console.log(event)
+    console.log(userId)
     switch (event) {
       case 'join':
         this.beforeJoin({ userId })
@@ -60,20 +70,27 @@ class Queue {
     }, COUNTDOWN_TIME)
   }
 
-  readyPlayer({ userId }) {
+  readyPlayer({ userId, whatsApp }) {
     if (
       !this._possiblePlayers.includes(userId) ||
       this._readyPlayers.includes(userId)
     ) {
-      return logger.warn('Unvalid user tried to ready up', userId)
+      logger.warn('Unvalid user tried to ready up', userId)
+      return false
     }
 
     this._readyPlayers.push(userId)
+
+    if (whatsApp) {
+      this._whatsAppReady.push(userId)
+    }
 
     if (this._readyPlayers.length === 10) {
       clearTimeout(this._timeout)
       this.createMatch()
     }
+
+    return true
   }
 
   async kickUnreadyPlayers() {
@@ -96,10 +113,16 @@ class Queue {
       const unreadyNames = await idsToNames({ ids: playersToKick })
       for (const player of this._readyPlayers) {
         emitPrivateEvent(player, 'queue_timeout', { unreadyNames })
+        notifyWhatsAppUser({
+          userId: player,
+          event: 'queue_timeout',
+          data: { unreadyNames }
+        })
       }
 
       this._possiblePlayers = []
       this._readyPlayers = []
+      this._whatsAppReady = []
 
       if (this.count > 9) {
         this.handleFullQueue()
@@ -112,7 +135,6 @@ class Queue {
   async beforeJoin({ userId }) {
     try {
       const isAllowedToJoin = await allowedToJoin({ userId })
-
       if (isAllowedToJoin && !this._players.includes(userId)) {
         this.addPlayer({ userId })
       }
@@ -124,6 +146,8 @@ class Queue {
   async addPlayer({ userId }) {
     try {
       this._players.push(userId)
+      console.log(this._players.length)
+      console.log(this.count)
       await updateStatus(userId, { inQueue: true })
 
       this.announceChange()
@@ -164,6 +188,7 @@ class Queue {
       const userId = this._players[i]
       this._possiblePlayers.push(userId)
       emitPrivateEvent(userId, 'queue_ready', {})
+      notifyWhatsAppUser({ userId, event: 'queue_ready' })
     }
 
     this.setReadyTimeout()
@@ -180,8 +205,18 @@ class Queue {
         this.removePlayer({ userId: player })
       }
 
+      for (const player of this._whatsAppReady) {
+        const playerNames = await idsToNames(this._readyPlayers)
+        notifyWhatsAppUser({
+          userId: player,
+          event: 'queue_success',
+          data: { playerNames }
+        })
+      }
+
       this._readyPlayers = []
       this._possiblePlayers = []
+      this._whatsAppReady = []
 
       if (this.count > 9) {
         this.handleFullQueue()
@@ -195,13 +230,15 @@ class Queue {
   async announceChange() {
     try {
       const teamSpeakHandler = await TeamSpeakHandler.getInstance()
-      const title = `[cspacer#4][${this.count}] In der Warteschlange`
+      const title = `[cspacer#${generateCode()}][${
+        this.count
+      }] In der Warteschlange`
       teamSpeakHandler.editChannel({
-        cid: teamSpeakHandler._queueChannel,
-        options: { title }
+        cid: teamSpeakHandler._queueChannel.propcache.cid,
+        options: { channelName: title }
       })
       emitPublicEvent({
-        event: 'queue-update',
+        event: 'QUEUE_UPDATE',
         data: { count: this.count }
       })
     } catch (err) {

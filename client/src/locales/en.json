@@ -178,5 +178,9 @@
   },
   "match": {
     "TITLE": "Match Page"
+  },
+  "whatsApp": {
+    "DISABLED": "You won't receive any WhatsApp messages going forward.",
+    "ENABLED": "We will notify you about events using WhatsApp."
   }
 }

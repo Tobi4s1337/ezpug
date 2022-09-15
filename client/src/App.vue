@@ -7,7 +7,6 @@
         v-if="profile.name && !profile.teamSpeakId && !showLoading"
         ref="teamspeak"
       />
-      <WhatsAppDialog />
       {{ profile }}
       <loading />
       <v-container fluid>
@@ -16,7 +15,7 @@
         </transition>
       </v-container>
     </v-main>
-    <Footer />
+    <Queue />
   </v-app>
 </template>
 
@@ -26,7 +25,7 @@ import Toolbar from '@/components/core/Toolbar.vue'
 import Loading from '@/components/core/Loading.vue'
 import Footer from '@/components/core/Footer.vue'
 import TeamspeakDialog from '@/components/TeamspeakDialog.vue'
-import WhatsAppDialog from '@/components/WhatsAppDialog.vue'
+import Queue from '@/components/Queue.vue'
 
 export default {
   name: 'App',
@@ -74,7 +73,7 @@ export default {
     Loading,
     Footer,
     TeamspeakDialog,
-    WhatsAppDialog
+    Queue
   },
   computed: {
     ...mapGetters(['user', 'profile', 'showLoading']),

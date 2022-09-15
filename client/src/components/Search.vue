@@ -1,5 +1,5 @@
 <template>
-  <div style="max-width: 1100px; margin: auto;">
+  <div style="max-width: 1100px; margin: auto">
     <v-data-table
       :loading="dataTableLoading"
       :no-data-text="$t('dataTable.NO_DATA')"

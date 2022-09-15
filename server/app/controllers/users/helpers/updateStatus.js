@@ -19,6 +19,14 @@ const updateStatus = (userId, status) => {
         newStatus.online = true
       }
 
+      if (status.inQueue === true) {
+        newStatus.inQueue = true
+      }
+
+      if (status.inQueue === false) {
+        newStatus.inQueue = false
+      }
+
       if (status.match) {
         newStatus.match = status.match
       }

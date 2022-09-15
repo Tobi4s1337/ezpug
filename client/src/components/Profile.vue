@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <whats-app-dialog v-if="whatsAppDialog" />
     <v-layout row wrap>
       <Heading :title="$t('myProfile.TITLE')" />
       <v-flex xs12 sm8 offset-sm2>
@@ -171,11 +172,35 @@
         <v-btn @click="unlinkTeamSpeak()">Unlink TeamSpeak</v-btn>
       </v-flex>
     </v-layout>
+    <v-layout>
+      <v-flex xs12 v-if="hasPhoneNumber">
+        <h3 class="mt-5 mb-2">Update your WhatsApp Number</h3>
+        <v-btn @click="whatsAppDialog = true">Link WhatsApp</v-btn>
+        <div class="whats-app-switch-wrapper">
+          <v-switch
+            v-model="whatsAppEnabled"
+            inset
+            @change="toggleWhatsAppEnabled()"
+            label="Toggle WhatsApp Notifications"
+          ></v-switch>
+        </div>
+      </v-flex>
+      <v-flex xs12 v-else>
+        <h3 class="mt-5 mb-2">Link your WhatsApp Number</h3>
+        <v-btn @click="whatsAppDialog = true">Link WhatsApp</v-btn>
+        <v-switch
+          inset
+          label="Enable WhatsApp Notifications"
+          disabled="true"
+        ></v-switch>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
 <script>
 import { mapActions } from 'vuex'
+import WhatsAppDialog from '@/components/WhatsAppDialog.vue'
 
 export default {
   metaInfo() {
@@ -184,6 +209,7 @@ export default {
       titleTemplate: `${this.$t('myProfile.TITLE')} - %s`
     }
   },
+  components: { WhatsAppDialog },
   data() {
     return {
       dialog: false,
@@ -191,7 +217,8 @@ export default {
       oldPassword: '',
       newPassword: '',
       confirmPassword: '',
-      searchInput: ''
+      searchInput: '',
+      whatsAppDialog: false
     }
   },
   computed: {
@@ -215,6 +242,12 @@ export default {
     },
     teamSpeakId() {
       return this.$store.state.profile.profile.teamSpeakId
+    },
+    hasPhoneNumber() {
+      return !!this.$store.state.profile.profile.phone
+    },
+    whatsAppEnabled() {
+      return this.$store.state.profile.profile.whatsAppEnabled
     }
   },
   methods: {
@@ -223,7 +256,8 @@ export default {
       'getProfile',
       'addProfileData',
       'saveProfile',
-      'unlinkTeamSpeak'
+      'unlinkTeamSpeak',
+      'toggleWhatsAppEnabled'
     ]),
     async submit() {
       await this.saveProfile({
@@ -266,3 +300,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.whats-app-switch-wrapper {
+  display: block ruby;
+}
+</style>

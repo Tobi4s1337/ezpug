@@ -1,12 +1,21 @@
 <template>
   <span
+    v-if="status"
     :class="{
       online: status.online,
       offline: !status.online,
       active: status.inQueue || status.inMatch
     }"
-    >{{ statusText }}  <v-icon v-if="status.teamSpeak" small class="ml-1 ts-icon">mdi-headphones</v-icon> <img v-if="false && status.teamSpeak" class="teamspeak-icon" src="/teamspeak.svg" alt="TeamSpeak Icon"></span
-  >
+    >{{ statusText }}
+    <v-icon v-if="status.teamSpeak" small class="ml-1 ts-icon"
+      >mdi-headphones</v-icon
+    >
+    <img
+      v-if="false && status.teamSpeak"
+      class="teamspeak-icon"
+      src="/teamspeak.svg"
+      alt="TeamSpeak Icon"
+  /></span>
 </template>
 
 <script>

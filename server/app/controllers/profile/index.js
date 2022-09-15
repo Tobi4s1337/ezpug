@@ -8,6 +8,7 @@ const { unlinkTeamSpeak } = require('./unlinkTeamSpeak')
 const { linkWhatsAppRequest } = require('./linkWhatsAppRequest')
 const { redeemWhatsAppCode } = require('./redeemWhatsAppCode')
 const { unlinkWhatsApp } = require('./unlinkWhatsApp')
+const { toggleWhatsAppEnabled } = require('./toggleWhatsAppEnabled')
 
 module.exports = {
   changePassword,
@@ -19,5 +20,6 @@ module.exports = {
   unlinkTeamSpeak,
   linkWhatsAppRequest,
   redeemWhatsAppCode,
-  unlinkWhatsApp
+  unlinkWhatsApp,
+  toggleWhatsAppEnabled
 }

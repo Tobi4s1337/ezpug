@@ -8,7 +8,16 @@ const { buildSort } = require('./buildSort')
 const listInitOptions = (req = {}) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const order = req.query.order || -1
+      let order = -1
+
+      if (
+        req.query.order &&
+        req.query.order[0] &&
+        req.query.order[0] !== 'false'
+      ) {
+        order = req.query.order
+      }
+
       const sort = req.query.sort || 'createdAt'
       const sortBy = buildSort(sort, order)
       const page = parseInt(req.query.page, 10) || 1

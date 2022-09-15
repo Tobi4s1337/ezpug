@@ -85,6 +85,10 @@ const UserSchema = new mongoose.Schema(
     phone: {
       type: String
     },
+    whatsAppEnabled: {
+      type: Boolean,
+      default: false
+    },
     whatsAppCode: {
       type: String
     },

@@ -12,5 +12,8 @@ export default {
   },
   unlinkTeamSpeak() {
     return axios.post('/profile/unlinkTeamSpeak')
+  },
+  toggleWhatsAppEnabled() {
+    return axios.patch('profile/whatsAppEnabled')
   }
 }
