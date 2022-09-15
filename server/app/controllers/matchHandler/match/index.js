@@ -139,7 +139,7 @@ class Match {
         await updateStatus(player, { match: status })
       }
     } catch (err) {
-      logger.err('Failed updating players status', err)
+      logger.error('Failed updating players status', err)
     }
   }
 
@@ -227,7 +227,7 @@ class Match {
         match: this.matchStateDbFriendly
       })
     } catch (err) {
-      console.log('Failed to save match state', err)
+      logger.error('Failed to save match state', err)
     }
   }
 
@@ -251,7 +251,7 @@ class Match {
 
       logger.info('Loaded Match from db', this._matchId)
     } catch (err) {
-      logger.error('Error loading match from db', err)
+      logger.erroror('Error loading match from db', err)
     }
   }
 
@@ -295,7 +295,7 @@ class Match {
       try {
         await this.saveMatchState()
       } catch (err) {
-        logger.error('Failed to save match state', err)
+        logger.erroror('Failed to save match state', err)
       }
       return this.startMatch()
     }
@@ -334,7 +334,7 @@ class Match {
       try {
         await this.saveMatchState()
       } catch (err) {
-        logger.error('Failed to save match state', err)
+        logger.erroror('Failed to save match state', err)
       }
       return this.startMapVeto()
     }
@@ -391,7 +391,7 @@ class Match {
         }
       })
     } catch (err) {
-      logger.err(err)
+      logger.error(err)
     }
   }
 

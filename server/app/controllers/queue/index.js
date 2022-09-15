@@ -34,7 +34,7 @@ class Queue {
     try {
       this.announceChange()
     } catch (err) {
-      logger.err('Error creating Queue:', err)
+      logger.error('Error creating Queue:', err)
     }
   }
 
@@ -105,7 +105,7 @@ class Queue {
         this.handleFullQueue()
       }
     } catch (err) {
-      logger.err('Unable to kick unready players', err)
+      logger.error('Unable to kick unready players', err)
     }
   }
 
@@ -117,7 +117,7 @@ class Queue {
         this.addPlayer({ userId })
       }
     } catch (err) {
-      logger.err('Issue in beforeJoin', err)
+      logger.error('Issue in beforeJoin', err)
     }
   }
 
@@ -132,7 +132,7 @@ class Queue {
         this.handleFullQueue()
       }
     } catch (err) {
-      logger.err('Unable to add player to queue', err)
+      logger.error('Unable to add player to queue', err)
     }
   }
 
@@ -187,7 +187,7 @@ class Queue {
         this.handleFullQueue()
       }
     } catch (err) {
-      logger.err('Failed to create match', err)
+      logger.error('Failed to create match', err)
     }
   }
 
@@ -205,7 +205,7 @@ class Queue {
         data: { count: this.count }
       })
     } catch (err) {
-      logger.err('Error updating TeamSpeak:', err)
+      logger.error('Error updating TeamSpeak:', err)
     }
   }
 

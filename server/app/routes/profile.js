@@ -16,7 +16,10 @@ const {
   getTeamSpeakUsers,
   linkTeamSpeakRequest,
   redeemTeamSpeakCode,
-  unlinkTeamSpeak
+  unlinkTeamSpeak,
+  linkWhatsAppRequest,
+  redeemWhatsAppCode,
+  unlinkWhatsApp
 } = require('../controllers/profile')
 
 const {
@@ -102,6 +105,36 @@ router.post(
   roleAuthorization(['admin', 'user']),
   trimRequest.all,
   redeemTeamSpeakCode
+)
+
+router.post(
+  '/unlinkWhatsApp',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  unlinkWhatsApp
+)
+
+/*
+ * Get items route
+ */
+router.post(
+  '/linkWhatsApp',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  linkWhatsAppRequest
+)
+
+/*
+ * Get items route
+ */
+router.post(
+  '/whatsAppCode',
+  requireAuth,
+  roleAuthorization(['admin', 'user']),
+  trimRequest.all,
+  redeemWhatsAppCode
 )
 
 module.exports = router

@@ -62,18 +62,14 @@
               Verlinken mit TeamSpeak User: <strong>{{ nickname }}</strong>
             </p>
 
-            <v-text-field
-              class="mb-2 code-input"
+            <v-otp-input
+              style="width: 240px; margin: auto"
               v-model="code"
-              placeholder="- - - -"
-              solo
-              maxlength="4"
-              outlined
-              :error="error"
+              @finish="submitCode"
               autofocus
-              hide-details
-              style="flex: initial"
-            ></v-text-field>
+              :error="error"
+              length="4"
+            ></v-otp-input>
           </div>
         </v-card-text>
         <v-divider></v-divider>
@@ -120,14 +116,6 @@ export default {
       return filteredUsers
     }
   },
-  watch: {
-    code(newCode, oldCode) {
-      if (newCode.length === 4) {
-        this.submitCode()
-      }
-      this.error = false
-    }
-  },
   methods: {
     ...mapActions(['addProfileData']),
     async submitCode() {
@@ -141,7 +129,7 @@ export default {
           // set teamspeakid in user state
           // set status to connected to teamspeak
           this.addProfileData({ key: 'teamSpeakId', value: this.teamSpeakId })
-          this.unlinked = false;
+          this.unlinked = false
           clearInterval(this.interval)
           this.dialog = false
 
@@ -180,6 +168,11 @@ export default {
         console.log(err)
       }
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.getUsers()
+    })
   }
 }
 </script>

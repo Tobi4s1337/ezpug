@@ -82,6 +82,12 @@ const UserSchema = new mongoose.Schema(
     receivedFriendRequests: [
       { type: Schema.Types.ObjectId, ref: 'FriendRequests' }
     ],
+    phone: {
+      type: String
+    },
+    whatsAppCode: {
+      type: String
+    },
     status: {
       online: {
         type: Boolean,

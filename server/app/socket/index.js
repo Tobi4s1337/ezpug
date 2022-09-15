@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
       await authenticate(socket, data)
       await joinRooms(socket)
     } catch (err) {
-      logger.err('Issue authenticating user', err)
+      logger.error('Issue authenticating user', err)
     }
   })
 
@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
 
       queue.onMessage({ userId: socket.userId, event: msg.event })
     } catch (err) {
-      logger.err('Issue handling queue-message', err)
+      logger.error('Issue handling queue-message', err)
     }
   })
 
@@ -124,7 +124,7 @@ io.on('connection', (socket) => {
         data: msg.data
       })
     } catch (err) {
-      logger.err('Issue forwarding Match event', err)
+      logger.error('Issue forwarding Match event', err)
     }
   })
 

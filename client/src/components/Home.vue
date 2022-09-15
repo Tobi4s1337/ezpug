@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-layout row wrap>
       <div class="text-center">
-        <v-dialog v-model="false && showVerifyDialog" width="500" persistent>
+        <v-dialog v-model="showVerifyDialog" width="500" persistent>
           <v-card>
             <v-card-title
               class="headline grey lighten-2 black--text dlgVerifyAccount"
