@@ -1,9 +1,9 @@
 const { allowedToJoin } = require('./allowedToJoin')
-const { idsToNames } = require('./idsToNames')
+const { idsToProfiles } = require('./idsToProfiles')
 const { notifyWhatsAppUser } = require('./notifyWhatsAppUser')
 
 module.exports = {
   allowedToJoin,
-  idsToNames,
+  idsToProfiles,
   notifyWhatsAppUser
 }

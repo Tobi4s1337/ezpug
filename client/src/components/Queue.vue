@@ -1,77 +1,90 @@
 <template>
-  <div class="queue-wrapper">
-    <v-card
-      outlined
-      elevation="4"
-      class="queue-card"
-      :class="{ expanded: inQueue }"
-    >
-      <video
-        v-if="inQueue"
-        id="bgVideo"
-        controls
-        preload="true"
-        autoplay
-        loop
-        playsinline
-        style="pointer-events: none"
-        muted
+  <div>
+    <QueueAccept
+      :accepted="accepted"
+      :players="possiblePlayers"
+      @accepted="accepted = true"
+      v-if="acceptPhase"
+    />
+    <div class="queue-wrapper">
+      <v-card
+        outlined
+        elevation="4"
+        class="queue-card"
+        :class="{ expanded: inQueue }"
       >
-        <source src="globe.webm" type="video/webm" />
-      </video>
+        <video
+          v-if="inQueue"
+          id="bgVideo"
+          controls
+          preload="true"
+          autoplay
+          loop
+          playsinline
+          style="pointer-events: none"
+          muted
+        >
+          <source src="globe.webm" type="video/webm" />
+        </video>
 
-      <v-btn
-        color="success"
-        fab
-        large
-        dark
-        bottom
-        :disabled="!onTeamSpeak"
-        left
-        class="v-btn--example"
-        @click="joinQueue()"
-        v-if="!inQueue"
-      >
-        <v-icon>mdi-play</v-icon>
-      </v-btn>
-      <v-btn
-        color="red"
-        fab
-        large
-        dark
-        bottom
-        left
-        class="v-btn--example"
-        @click="leaveQueue()"
-        v-else
-      >
-        <v-icon>mdi-stop</v-icon>
-      </v-btn>
-      <v-expand-x-transition>
-        <div class="queue-info" v-show="inQueue">
-          <div class="queue-status">In der Warteschlange</div>
-          <div class="queue-count">
-            Suchende Spieler: <strong>{{ count }}</strong>
+        <v-btn
+          color="success"
+          fab
+          large
+          dark
+          bottom
+          :disabled="!onTeamSpeak"
+          left
+          class="v-btn--example"
+          @click="joinQueue()"
+          v-if="!inQueue"
+        >
+          <v-icon>mdi-play</v-icon>
+        </v-btn>
+
+        <v-btn
+          color="red"
+          fab
+          large
+          dark
+          bottom
+          left
+          class="v-btn--example"
+          @click="leaveQueue()"
+          v-if="inQueue"
+        >
+          <v-icon>mdi-stop</v-icon>
+        </v-btn>
+        <v-expand-x-transition>
+          <div class="queue-info" v-show="inQueue">
+            <div class="queue-status">In der Warteschlange</div>
+            <div class="queue-count">
+              Suchende Spieler: <strong>{{ count }}</strong>
+            </div>
+            <div class="queue-time"><Timer :date="new Date()" /></div>
           </div>
-          <div class="queue-time"><Timer :date="new Date()" /></div>
-        </div>
-      </v-expand-x-transition>
-    </v-card>
+        </v-expand-x-transition>
+      </v-card>
+    </div>
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import Timer from '@/components/common/Timer.vue'
+import QueueAccept from '@/components/QueueAccept.vue'
 
 export default {
   name: 'Queue',
   data() {
     return {
-      count: 0
+      count: 0,
+      accepted: false,
+      acceptPhase: false,
+      possiblePlayers: []
     }
   },
-  components: { Timer },
+  components: { Timer, QueueAccept },
   methods: {
     ...mapActions(['addProfileData']),
     joinQueue() {
@@ -101,14 +114,18 @@ export default {
   sockets: {
     PUBLIC_QUEUE_UPDATE(data) {
       this.count = data.count
+    },
+    PRIVATE_QUEUE_READY(data) {
+      this.acceptPhase = true
+      if (data && data.players) {
+        this.possiblePlayers = data.players
+      }
+    },
+    PRIVATE_QUEUE_READY_UPDATE(data) {
+      if (data && data.players) {
+        this.possiblePlayers = data.players
+      }
     }
-    //queue() {
-    //  if (this.$store.getters.isTokenSet) {
-    //    this.$socket.client.emit('authenticate', {
-    //      key: this.$store.getters.token
-    //    })
-    //  }
-    //},
   }
 }
 </script>

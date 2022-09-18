@@ -20,10 +20,14 @@ const notifyWhatsAppUser = ({ userId, event, data }) => {
           'Du wurdest aus der Warteschlange entfernt, da du nicht rechtzeitig angenommen hast.'
         break
       case 'queue_timeout':
-        players = data.unreadyNames.join(',')
+        for (const profile of data.unreadyProfiles) {
+          players += ', ' + profile.name
+        }
         msg = `Die folgenden Spieler haben nicht rechtzeitig angenommen: ${players}\nDu bist weiterhin in der Warteschlange.`
       case 'queue_success':
-        players = data.playerNames.join('\n')
+        for (const profile of data.playerProfiles) {
+          players += '\n' + profile.name
+        }
         msg = `Alle 10 Spieler sind bereit und das Veto startet jetzt. 🥳\nDie folgenden Spieler nehmen Teil: ${players}`
         break
       default:

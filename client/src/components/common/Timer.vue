@@ -55,8 +55,8 @@ export default {
   },
   methods: {
     updateDiffs() {
-      //lets figure out our diffs
       let diff = Math.abs(Date.now() - this.date.getTime())
+
       this.days = Math.floor(diff / this.intervals.day)
       diff -= this.days * this.intervals.day
       this.hours = Math.floor(diff / this.intervals.hour)
@@ -64,6 +64,8 @@ export default {
       this.minutes = Math.floor(diff / this.intervals.minute)
       diff -= this.minutes * this.intervals.minute
       this.seconds = Math.floor(diff / this.intervals.second)
+
+      //lets figure out our diffs
     }
   }
 }

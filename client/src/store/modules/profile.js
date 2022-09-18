@@ -145,6 +145,7 @@ const mutations = {
     state.profile.teamSpeakId = data.teamSpeakId
     state.profile.phone = data.phone
     state.profile.whatsAppEnabled = data.whatsAppEnabled
+    state.profile.avatar = data.avatar
   },
   [types.ADD_PROFILE_DATA](state, data) {
     switch (data.key) {
@@ -169,6 +170,9 @@ const mutations = {
       case 'whatsAppEnabled':
         state.profile.whatsAppEnabled = data.value
         break
+      case 'avatar':
+        state.profile.avatar = data.value
+        break
       default:
         break
     }
@@ -185,7 +189,8 @@ const state = {
     steamUrl: '',
     teamSpeakId: '',
     phone: '',
-    whatsAppEnabled: ''
+    whatsAppEnabled: '',
+    avatar: ''
   }
 }
 

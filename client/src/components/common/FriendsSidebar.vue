@@ -13,9 +13,7 @@
     <v-list dense nav class="py-0">
       <v-list-item two-line class="py-0 user-item online mt-1 mb-1">
         <v-list-item-avatar rounded size="54" class="mb-0 mt-0 user-avatar">
-          <img
-            src="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
-          />
+          <img :src="profile.avatar" />
         </v-list-item-avatar>
 
         <v-list-item-content>
@@ -23,8 +21,7 @@
             user.name
           }}</v-list-item-title>
           <v-list-item-subtitle class="user-status"
-            ><UserStatus
-              :status="user.status"
+            ><UserStatus :status="user.status"
           /></v-list-item-subtitle>
           <v-list-item-subtitle class="user-stats"
             ><span class="user-rank mr-2">Rank: 13</span
@@ -67,7 +64,7 @@
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
               :name="friend.name"
-              avatar="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
+              :avatar="friend.avatar"
               steam-url="props.item.steamUrl"
               :id="friend._id"
               rank="32"
@@ -88,7 +85,7 @@
               type="FRIEND"
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
-              avatar="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
+              :avatar="friend.avatar"
               steam-url="props.item.steamUrl"
               :id="friend._id"
               rank="32"
@@ -117,7 +114,7 @@
               :name="request.requester.name"
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
-              avatar="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
+              :avatar="request.requester.avatar"
               steam-url="props.item.steamUrl"
               :id="request.requester._id"
               rank="32"
@@ -139,7 +136,7 @@
               :name="request.recipient.name"
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
-              avatar="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
+              :avatar="friend.recipient.avatar"
               :id="request.recipient._id"
               rank="32"
               elo="1337"
@@ -172,7 +169,7 @@
               :key="friend._id"
               type="FRIEND"
               :name="friend.name"
-              avatar="https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/9c/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg"
+              :avatar="friend.avatar"
               steam-url="props.item.steamUrl"
               id="props.item._id"
               rank="32"
@@ -204,7 +201,8 @@ export default {
       'sentFriendRequests',
       'receivedFriendRequests',
       'friends',
-      'user'
+      'user',
+      'profile'
     ]),
     collapsed() {
       return !(this.hover || this.contextMenuOpen)
@@ -237,13 +235,14 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getFriends', 'getFriendRequests']),
+    ...mapActions(['getFriends', 'getFriendRequests', 'getProfile']),
     addFriends() {
       this.$router.push('/search')
     }
   },
   mounted() {
     this.$nextTick(() => {
+      this.getProfile()
       this.getFriends()
       this.getFriendRequests()
     })

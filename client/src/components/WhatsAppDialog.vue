@@ -37,11 +37,11 @@
         >
       </v-card>
       <v-card v-else>
-        <v-card-title>Verlinke deine TeamSpeak Identität</v-card-title>
+        <v-card-title>Verlinke WhatsApp</v-card-title>
         <v-divider></v-divider>
         <v-card-text class="whats-app-info">
           <p>
-            Du solltest eine Nachricht von einem WahtsApp Account "EZPUG"
+            Du solltest eine Nachricht von einem WhatsApp Account "EZPUG"
             erhalten haben.<br />
             Bitte gebe hier den Code ein, welcher dir von dem Bot zugesendet
             wurde.

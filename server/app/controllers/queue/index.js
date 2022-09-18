@@ -7,7 +7,11 @@ const {
   emitQueueEvent,
   emitPrivateEvent
 } = require('../../socket')
-const { allowedToJoin, idsToNames, notifyWhatsAppUser } = require('./helpers')
+const {
+  allowedToJoin,
+  idsToProfiles,
+  notifyWhatsAppUser
+} = require('./helpers')
 const { updateStatus } = require('../users/helpers/updateStatus')
 
 const COUNTDOWN_TIME = 1000 * 30 // 30 seconds
@@ -70,7 +74,7 @@ class Queue {
     }, COUNTDOWN_TIME)
   }
 
-  readyPlayer({ userId, whatsApp }) {
+  async readyPlayer({ userId, whatsApp }) {
     if (
       !this._possiblePlayers.includes(userId) ||
       this._readyPlayers.includes(userId)
@@ -83,6 +87,12 @@ class Queue {
 
     if (whatsApp) {
       this._whatsAppReady.push(userId)
+    }
+
+    const players = await this.getPossiblePlayersProfiles()
+
+    for (const player of this._possiblePlayers) {
+      emitPrivateEvent(player, 'QUEUE_READY_UPDATE', { players })
     }
 
     if (this._readyPlayers.length === 10) {
@@ -110,13 +120,13 @@ class Queue {
         emitPrivateEvent(player, 'queue_kick', {})
       }
 
-      const unreadyNames = await idsToNames({ ids: playersToKick })
+      const unreadyProfiles = await idsToProfiles({ ids: playersToKick })
       for (const player of this._readyPlayers) {
-        emitPrivateEvent(player, 'queue_timeout', { unreadyNames })
+        emitPrivateEvent(player, 'queue_timeout', { unreadyProfiles })
         notifyWhatsAppUser({
           userId: player,
           event: 'queue_timeout',
-          data: { unreadyNames }
+          data: { unreadyProfiles }
         })
       }
 
@@ -187,7 +197,7 @@ class Queue {
     for (let i = 0; i < 10; i++) {
       const userId = this._players[i]
       this._possiblePlayers.push(userId)
-      emitPrivateEvent(userId, 'queue_ready', {})
+      emitPrivateEvent(userId, 'QUEUE_READY', {})
       notifyWhatsAppUser({ userId, event: 'queue_ready' })
     }
 
@@ -206,11 +216,11 @@ class Queue {
       }
 
       for (const player of this._whatsAppReady) {
-        const playerNames = await idsToNames(this._readyPlayers)
+        const playerProfiles = await idsToProfiles(this._readyPlayers)
         notifyWhatsAppUser({
           userId: player,
           event: 'queue_success',
-          data: { playerNames }
+          data: { playerProfiles }
         })
       }
 
@@ -244,6 +254,28 @@ class Queue {
     } catch (err) {
       logger.error('Error updating TeamSpeak:', err)
     }
+  }
+
+  getPossiblePlayersProfiles() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const playerProfiles = await idsToProfiles({
+          ids: this._possiblePlayers
+        })
+        const playersArr = []
+
+        for (let player of playerProfiles) {
+          if (this._readyPlayers.includes(player.userId)) {
+            player.accepted = true
+          }
+          playersArr.push(player)
+        }
+
+        resolve(playersArr)
+      } catch (err) {
+        reject(err)
+      }
+    })
   }
 
   get count() {

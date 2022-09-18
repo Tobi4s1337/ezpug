@@ -1,13 +1,14 @@
 <template>
   <v-app>
-    <Toolbar />
+    <Toolbar v-if="false" />
     <v-main class="text-center">
+      <NavigationSidebar />
       <FriendsSidebar v-if="user" />
+      <NameDialog v-if="user && !profile.name && !showLoading" />
       <TeamspeakDialog
         v-if="profile.name && !profile.teamSpeakId && !showLoading"
         ref="teamspeak"
       />
-      {{ profile }}
       <loading />
       <v-container fluid>
         <transition name="fade" mode="out-in">
@@ -15,7 +16,8 @@
         </transition>
       </v-container>
     </v-main>
-    <Queue />
+
+    <Queue v-if="user" />
   </v-app>
 </template>
 
@@ -23,8 +25,9 @@
 import { mapActions, mapGetters } from 'vuex'
 import Toolbar from '@/components/core/Toolbar.vue'
 import Loading from '@/components/core/Loading.vue'
-import Footer from '@/components/core/Footer.vue'
+import NavigationSidebar from '@/components/core/NavigationSidebar.vue'
 import TeamspeakDialog from '@/components/TeamspeakDialog.vue'
+import NameDialog from '@/components/NameDialog.vue'
 import Queue from '@/components/Queue.vue'
 
 export default {
@@ -71,9 +74,10 @@ export default {
   components: {
     Toolbar,
     Loading,
-    Footer,
+    NavigationSidebar,
     TeamspeakDialog,
-    Queue
+    Queue,
+    NameDialog
   },
   computed: {
     ...mapGetters(['user', 'profile', 'showLoading']),

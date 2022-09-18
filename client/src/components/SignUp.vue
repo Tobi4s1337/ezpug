@@ -78,6 +78,7 @@
       </v-flex>
       <ErrorMessage />
     </v-layout>
+    <SteamAuth type="LOGIN" @authenticated="steamLogin" />
   </v-container>
 </template>
 

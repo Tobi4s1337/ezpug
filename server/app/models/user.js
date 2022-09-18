@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      //required: true,
       unique: true
     },
     avatar: {
@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      //required: true,
       select: false
     },
     teamSpeakCode: {
@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema(
     },
     verified: {
       type: Boolean,
-      default: false
+      default: true // revisit later
     },
     loginAttempts: {
       type: Number,

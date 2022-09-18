@@ -8,12 +8,21 @@ const { buildErrObject } = require('../../../middleware/utils')
  */
 const registerUser = (req = {}) => {
   return new Promise((resolve, reject) => {
-    const user = new User({
-      name: req.name,
-      email: req.email,
-      password: req.password,
-      verification: uuid.v4()
-    })
+    let user = null
+
+    if (req.steamId) {
+      user = new User({
+        steamId: req.steamId,
+        email: req.steamId + '@ezpug.com'
+      })
+    } else {
+      user = new User({
+        name: req.name,
+        email: req.email,
+        password: req.password,
+        verification: uuid.v4()
+      })
+    }
     user.save((err, item) => {
       if (err) {
         reject(buildErrObject(422, err.message))

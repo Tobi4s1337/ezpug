@@ -254,12 +254,6 @@ export default {
           icon: 'mdi-lock',
           class: 'btnLogin'
         },
-        {
-          title: this.$t('menuItems.SIGNUP'),
-          link: 'signup',
-          icon: 'mdi-plus-circle-outline',
-          class: 'btnLogin'
-        }
       ]
     }
   },

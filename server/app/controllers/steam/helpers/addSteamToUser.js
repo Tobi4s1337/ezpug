@@ -39,9 +39,14 @@ const getSteamUserInfo = (steamId = '') => {
 const addSteamToUser = (userId = '', steamId = '') => {
   return new Promise(async (resolve, reject) => {
     const steamUserInfo = await getSteamUserInfo(steamId)
+    // To improve, generate random avatar
+    console.log(steamUserInfo)
     const updatedData = {
       steamId,
       csgoId: steamUserInfo.csgoId,
+      avatar: steamUserInfo.avatar
+        ? steamUserInfo.avatar.medium
+        : 'https://avatars.steamstatic.com/9c2082f9ed437afa5b921455379b2091afeb5974_full.jpg',
       steamUrl: 'http://steamcommunity.com/profiles/' + steamId
     }
     User.findByIdAndUpdate(
