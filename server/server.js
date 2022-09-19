@@ -1,5 +1,5 @@
-process.title = 'ezpug-server';
-process.env.DEBUG = process.env.DEBUG || '*INFO* *WARN* *ERROR*';
+process.title = 'ezpug-server'
+process.env.DEBUG = process.env.DEBUG || '*INFO* *WARN* *ERROR*'
 
 require('dotenv-safe').config()
 const express = require('express')
@@ -13,6 +13,7 @@ const app = express()
 const i18n = require('i18n')
 const initMongo = require('./config/mongo')
 const path = require('path')
+const { createDefaultMapPool } = require('./createDefaultMapPool')
 
 // Setup express server port from ENV, default: 3001
 app.set('port', process.env.PORT || 3001)
@@ -65,5 +66,6 @@ app.listen(app.get('port'))
 
 // Init MongoDB
 initMongo()
+createDefaultMapPool()
 
 module.exports = app

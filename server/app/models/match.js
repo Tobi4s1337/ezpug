@@ -15,7 +15,7 @@ const matchSchema = new Schema(
     gameServer: String,
     gotv: String,
     mapVeto: {
-      pool: [],
+      pool: Object,
       teamOneBans: [],
       teamTwoBans: []
     },
@@ -25,7 +25,7 @@ const matchSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'User',
         autopopulate: {
-          select: 'id avatar name role steamId teamSpeakId csgoId steamUrl'
+          select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
         }
       }
     ],
@@ -37,11 +37,17 @@ const matchSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'User',
           autopopulate: {
-            select: 'id avatar name role steamId teamSpeakId csgoId steamUrl'
+            select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
           }
         }
       ],
-      captain: { type: Schema.Types.ObjectId, ref: 'User', autopopulate: true }
+      captain: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        autopopulate: {
+          select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
+        }
+      }
     },
     teamTwo: {
       name: String,
@@ -51,7 +57,7 @@ const matchSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'User',
           autopopulate: {
-            select: 'id avatar name role steamId teamSpeakId csgoId steamUrl'
+            select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
           }
         }
       ],
@@ -59,7 +65,7 @@ const matchSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'User',
         autopopulate: {
-          select: 'id avatar name role steamId teamSpeakId csgoId steamUrl'
+          select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
         }
       }
     },

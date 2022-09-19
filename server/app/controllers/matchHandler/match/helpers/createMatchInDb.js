@@ -7,7 +7,7 @@ const createMatchInDb = ({ data }) => {
         return reject(err)
       }
 
-      resolve(newMatch)
+      resolve(newMatch._id)
     })
   })
 }

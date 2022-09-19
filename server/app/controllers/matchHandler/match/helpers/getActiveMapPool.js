@@ -6,7 +6,7 @@ const getActiveMapPool = ({ type }) => {
       { active: true, type: type ? type : 'pug' },
       (err, mapPool) => {
         if (err || !mapPool) {
-          return reject(err)
+          return reject(err ? err : 'No active map-pool')
         }
         resolve(mapPool)
       }

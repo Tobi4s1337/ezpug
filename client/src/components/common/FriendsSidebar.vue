@@ -22,10 +22,9 @@
           <img :src="profile.avatar" />
         </v-list-item-avatar>
 
-        <v-list-item-content>
-          {{ profile.name }}
+        <v-list-item-content class="own-user-item">
           <v-list-item-title class="user-name">{{
-            user.name
+            profile.name
           }}</v-list-item-title>
           <v-list-item-subtitle class="user-status"
             ><UserStatus :status="user.status"
@@ -425,5 +424,11 @@ html {
 .search-wrapper .v-input.v-text-field {
   margin-left: 12px;
   margin-right: 12px;
+}
+.own-user-item {
+  max-height: 60px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 </style>

@@ -8,7 +8,7 @@
         rounded
         class="sidebar-logo"
       >
-        <v-img src="/logo.png"></v-img>
+        <v-img style="border-radius: 13px" src="/logo.png"></v-img>
       </v-list-item-avatar>
     </v-list-item>
 

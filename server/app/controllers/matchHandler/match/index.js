@@ -1,3 +1,7 @@
+// To fix: for some reason random pick tried to add captain to a team
+// To Fix: mapPool is not iterable (cuz of schema change)
+// Verify that check for banned maps and picked players makes sense (so one team can only have one more than the other)
+
 const {
   emitPublicEvent,
   emitMatchEvent,
@@ -15,7 +19,8 @@ const {
   saveMatchToDb,
   playersToIds,
   getTeamCaptains,
-  getTimeLeft
+  getTimeLeft,
+  idToProfile
 } = require('./helpers/index.js')
 const TeamSpeakHandler = require('../../../controllers/teamSpeak')
 
@@ -27,7 +32,7 @@ const COUNTDOWN_TIME = 1000 * 30 // 30 seconds
  */
 class Match {
   constructor({ players, matchId, type }) {
-    logger.info('Constructing')
+    logger.info('Constructor()')
 
     if (matchId) {
       this._matchId = matchId
@@ -74,14 +79,24 @@ class Match {
   initMatch() {
     return new Promise(async (resolve, reject) => {
       try {
+        logger.info('initMatch()')
         this._mapVeto.pool = await getActiveMapPool({ type: this._type })
 
-        const { teamOneCaptain, teamTwoCaptain } = getTeamCaptains({ players })
+        logger.info('Got active map-pool', this._mapVeto.pool)
+
+        const { teamOneCaptain, teamTwoCaptain } = getTeamCaptains({
+          players: this._players
+        })
+
+        const teamOneCaptainProfile = await idToProfile({ id: teamOneCaptain })
+        const teamTwoCaptainProfile = await idToProfile({ id: teamTwoCaptain })
+
+        logger.info('Got captains', { teamOneCaptain, teamTwoCaptain })
 
         this._teamOne.captain = teamOneCaptain
-        this._teamOne.name = 'team_' + teamOneCaptain.name
+        this._teamOne.name = 'team_' + teamOneCaptainProfile.name
         this._teamTwo.captain = teamTwoCaptain
-        this._teamTwo.name = 'team_' + teamTwoCaptain.name
+        this._teamTwo.name = 'team_' + teamTwoCaptainProfile.name
 
         const teamSpeakHandler = await TeamSpeakHandler.getInstance()
         this._teamSpeak = await teamSpeakHandler.createMatch({
@@ -89,34 +104,69 @@ class Match {
           teamTwoName: this._teamTwo.name
         })
 
-        const match = await createMatchInDb({ data: this.matchStateDbFriendly })
-        this._matchId = match._id
-        this._teamOne.captain = match.teamOne.teamOneCaptain
+        logger.info('Created TeamSpeak Match')
+
+        const matchId = await createMatchInDb({
+          data: this.matchStateDbFriendly
+        })
+        const match = await getMatchFromDb({ matchId })
+
+        logger.info('Created Match in DB')
+
+        this._matchId = matchId
+        this._teamOne.captain = match.teamOne.captain
         this._teamOne.players = match.teamOne.players
         this._players = match.players
         this._teamTwo.players = match.teamTwo.players
         this._teamTwo.captain = match.teamTwo.captain
 
+        this.movePlayers()
         resolve(match)
 
         this.startPlayerVeto()
         this.updatePlayersStatus()
       } catch (err) {
+        logger.error('Error while initiating match', err)
         reject(err)
       }
     })
   }
 
+  async movePlayers() {
+    try {
+      const teamSpeakHandler = await TeamSpeakHandler.getInstance()
+      const playersTeamSpeakIds = []
+
+      for (const player of this._players) {
+        if (
+          this._teamOne.captain._id !== player._id &&
+          this._teamTwo.captain._id !== player._id
+        ) {
+          playersTeamSpeakIds.push(player.teamSpeakId)
+        }
+      }
+
+      await teamSpeakHandler.moveUsersToChannel({
+        teamSpeakIds: playersTeamSpeakIds,
+        cid: this._teamSpeak.talkCid
+      })
+
+      await teamSpeakHandler.moveUserToChannel({
+        teamSpeakId: this._teamOne.captain.teamSpeakId,
+        cid: this._teamSpeak.teamOneCid
+      })
+
+      await teamSpeakHandler.moveUserToChannel({
+        teamSpeakId: this._teamTwo.captain.teamSpeakId,
+        cid: this._teamSpeak.teamTwoCid
+      })
+    } catch (err) {
+      logger.error('Issue moving players', err)
+    }
+  }
+
   async updatePlayersStatus() {
     try {
-      const teamOnePlayers = playersToIds(this._teamOne.players).push(
-        this._teamOne.captain._id
-      )
-
-      const teamTwoPlayers = playersToIds(this._teamTwo.players).push(
-        this._teamTwo.captain._id
-      )
-
       let status = {
         active: true,
         isTeamOne: false,
@@ -126,6 +176,27 @@ class Match {
           teamTwo: this._teamTwo.score
         }
       }
+
+      if (this._status === 'playerveto' || this._status === 'mapveto') {
+        const players = playersToIds(this._players)
+
+        for (const player of players) {
+          await updateStatus(player, { match: status })
+        }
+        return
+      }
+
+      const teamOnePlayers = playersToIds(this._teamOne.players).push(
+        this._teamOne.captain._id
+          ? this._teamOne.captain._id
+          : this._teamOne.captain
+      )
+
+      const teamTwoPlayers = playersToIds(this._teamTwo.players).push(
+        this._teamTwo.captain._id
+          ? this._teamTwo.captain._id
+          : this._teamTwo.captain
+      )
 
       for (const player of teamOnePlayers) {
         status.isTeamOne = true
@@ -167,18 +238,19 @@ class Match {
       let pickedById = ''
 
       if (this._teamTwo.players.length < this._teamOne.players.length) {
-        pickedById = this._teamOne.captain._id
-      } else {
         pickedById = this._teamTwo.captain._id
+      } else {
+        pickedById = this._teamOne.captain._id
       }
 
       const playersToPick = this.playersToPick
+
       const pickedId =
-        playersToPick[Math.floor(Math.random() * playersToPick.length)]
+        playersToPick[Math.floor(Math.random() * playersToPick.length)]._id
 
       this.pickPlayer({ pickedById, pickedId })
 
-      logger.info('Picked random player because of timeout')
+      logger.info(`Picked random player ${pickedId} because of timeout`)
     }, COUNTDOWN_TIME)
   }
 
@@ -251,7 +323,7 @@ class Match {
 
       logger.info('Loaded Match from db', this._matchId)
     } catch (err) {
-      logger.erroror('Error loading match from db', err)
+      logger.error('Error loading match from db', err)
     }
   }
 
@@ -359,8 +431,15 @@ class Match {
 
   async addPlayerToTeam({ playerId, teamOne }) {
     try {
+      logger.info(
+        `Adding player with id ${playerId} to ${
+          teamOne ? 'teamOne' : 'teamTwo'
+        }`
+      )
       const teamSpeakHandler = await TeamSpeakHandler.getInstance()
       const player = this.playersMap[playerId]
+
+      logger.info('Player info taken from playersMap', player)
 
       if (teamOne) {
         this._teamOne.players.push(player)
@@ -426,10 +505,10 @@ class Match {
 
     for (const player of players) {
       if (
-        teamOnePlayers.includes(player._id) &&
-        teamTwoPlayers.includes(player._id) &&
-        teamOneCaptain._id !== player._id &&
-        teamTwoCaptain._id !== player._id
+        !teamOnePlayers.includes(player._id) &&
+        !teamTwoPlayers.includes(player._id) &&
+        this._teamOne.captain._id !== player._id &&
+        this._teamTwo.captain._id !== player._id
       ) {
         availablePlayers.push(player)
       }
@@ -460,12 +539,16 @@ class Match {
         roundsWon: this._teamOne.roundsWon,
         players: this._teamOne.players,
         captain: this._teamOne.captain._id
+          ? this._teamOne.captain._id
+          : this._teamOne.captain
       },
-      teamOne: {
+      teamTwo: {
         name: this._teamTwo.name,
         roundsWon: this._teamTwo.roundsWon,
         players: this._teamTwo.players,
         captain: this._teamTwo.captain._id
+          ? this._teamTwo.captain._id
+          : this._teamTwo.captain
       },
       demoLink: this._demoLink,
       stats: this._stats,
@@ -477,7 +560,11 @@ class Match {
 
   get matchStateDbFriendly() {
     const state = this.matchState
-    state.players = playersToIds(this._players)
+    console.log(state)
+    state.players =
+      this._players.length > 0 && this._players[0]._id
+        ? playersToIds(this._players)
+        : this._players
     state.teamOne.players = playersToIds(this._teamOne.players)
     state.teamTwo.players = playersToIds(this._teamOne.players)
 

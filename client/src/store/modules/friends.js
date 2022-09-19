@@ -192,20 +192,23 @@ const mutations = {
     state.friends = state.friends.filter((friend) => {
       return friend._id !== userId
     })
-    this._vm.$socket.client.emit('leave-social', friend._id);
+    this._vm.$socket.client.emit('leave-social', friend._id)
   },
   [types.ADD_FRIEND](state, friend) {
     if (state.friends.some((e) => e._id === friend._id)) {
       return
     }
     state.friends.push(friend)
-    this._vm.$socket.client.emit('join-social', friend._id);
+    this._vm.$socket.client.emit('join-social', friend._id)
   },
   [types.UPDATE_FRIEND](state, data) {
     const index = state.friends.map((e) => e._id).indexOf(data.userId)
     delete data.userId
-    const friend = Object.assign(state.friends[index], data)
-    Vue.set(state.friends, index, Object.assign(state.friends[index], friend))
+
+    if (state.friends[index] && data) {
+      const friend = Object.assign(state.friends[index], data)
+      Vue.set(state.friends, index, Object.assign(state.friends[index], friend))
+    }
   }
 }
 

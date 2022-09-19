@@ -96,9 +96,10 @@ class Queue {
 
     if (this._readyPlayers.length === 10) {
       clearTimeout(this._timeout)
+      this._timeout = null
 
       logger.info('All players accepted, creating match...')
-      //this.createMatch()
+      this.createMatch()
     }
 
     return true
@@ -182,11 +183,7 @@ class Queue {
   removePlayer({ userId }) {
     return new Promise(async (resolve, reject) => {
       try {
-        if (
-          this._timeout &&
-          this._possiblePlayers.includes(userId) &&
-          this._timeout
-        ) {
+        if (this._timeout && this._possiblePlayers.includes(userId)) {
           return logger.warn(
             'Person tried to quit queue while requesting ready status'
           )

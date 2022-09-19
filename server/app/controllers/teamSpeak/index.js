@@ -345,7 +345,17 @@ class TeamSpeakHandler extends EventEmitter {
 
   async moveUserToChannel({ teamSpeakId, cid }) {
     try {
-      await this._teamSpeak.clientMove(teamSpeakId, cid)
+      console.log(`Moving user ${teamSpeakId} to channel ${cid}`)
+
+      const teamSpeakUser = await this._teamSpeak.getClientByUid(teamSpeakId)
+
+      if (teamSpeakUser && teamSpeakUser.propcache) {
+        return await this._teamSpeak.clientMove(
+          teamSpeakUser.propcache.clid,
+          cid
+        )
+      }
+      throw new Error('Unable to find client on TeamSpeak-Server')
     } catch (err) {
       console.log('Error moving player', err)
     }

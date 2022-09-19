@@ -1,4 +1,6 @@
-const Match = require('./match')
+const Logger = require('../../Logger')
+const logger = new Logger('MatchHandler')
+const { Match } = require('./match')
 const { getActiveMatches } = require('./match/helpers')
 
 /**
@@ -13,7 +15,7 @@ let instance
  */
 class MatchHandler {
   constructor() {
-    console.log('Creating MatchHandler')
+    logger.info('Creating MatchHandler')
 
     this._matches = {}
   }
@@ -21,13 +23,15 @@ class MatchHandler {
   async init() {
     try {
       // load existing active matches
-      const matches = getActiveMatches()
+      const matches = await getActiveMatches()
 
       for (const match of matches) {
         this.createMatch({ matchId: match._id })
       }
+
+      return this
     } catch (err) {
-      console.log('Error creating MatchHandler:', err)
+      logger.error('Error creating MatchHandler:', err)
     }
   }
 
@@ -47,6 +51,7 @@ class MatchHandler {
 
         resolve(match.matchId)
       } catch (err) {
+        logger.error('Error while creating new match', err)
         reject(err)
       }
     })
