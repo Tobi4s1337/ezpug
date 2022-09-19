@@ -10,7 +10,10 @@
         ref="teamspeak"
       />
       <loading />
-      <v-container fluid>
+      <v-container
+        fluid
+        style="max-width: calc(100% - 182px); margin-left: 104px"
+      >
         <transition name="fade" mode="out-in">
           <router-view />
         </transition>
@@ -106,7 +109,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.1s;
@@ -115,5 +118,37 @@ export default {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+#app.theme--dark.v-application {
+  background: $background-color;
+
+  .theme--dark.v-data-table {
+    background-color: $dark-background;
+  }
+
+  .theme--dark.v-navigation-drawer .v-divider {
+    border-color: $border-color;
+  }
+
+  .v-application .v-btn.secondary {
+    border: 1px solid $border-color !important;
+    border-color: $border-color !important;
+
+    &:hover {
+      border: 1px solid $border-color-hover !important;
+      border-color: $border-color-hover !important;
+    }
+  }
+
+  .v-card.theme--dark.v-card {
+    background-color: $bright-background;
+    border: thin solid $border-color;
+  }
+
+  .v-text-field--outlined > .v-input__control > .v-input__slot,
+  .v-text-field--filled > .v-input__control > .v-input__slot {
+    background-color: $bright-background;
+  }
 }
 </style>

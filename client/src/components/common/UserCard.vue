@@ -2,6 +2,7 @@
   <v-card
     max-width="400"
     outlined
+    dark
     elevation="5"
     :class="{
       online: status.online,
@@ -42,30 +43,28 @@
     </v-list-item>
 
     <v-card-actions class="user-actions">
-      <v-btn outlined text :href="steamUrl" target="_blank"
+      <v-btn color="secondary" :href="steamUrl" target="_blank"
         >Steam <v-icon right dark> mdi-steam </v-icon></v-btn
       >
-      <v-btn outlined text :href="steamUrl" target="_blank"
+      <v-btn color="secondary" :href="steamUrl" target="_blank"
         >{{ $t('social.PROFILE') }}
         <v-icon right dark> mdi-account-circle </v-icon></v-btn
       >
       <v-btn
         v-if="!isFriend && !isReceivedRequest && !isSentRequest && !isUser"
-        outlined
-        text
+        color="secondary"
         @click="createFriendRequest({ recipient: id })"
         target="_blank"
         >{{ $t('social.ADD_FRIEND') }}
         <v-icon right dark> mdi-account-plus </v-icon></v-btn
       >
-      <v-btn v-if="isFriend" outlined text target="_blank"
+      <v-btn v-if="isFriend" target="_blank"
         >{{ $t('social.SEND_MESSAGE') }}
         <v-icon right dark> mdi-account-plus </v-icon></v-btn
       >
       <v-btn
         v-if="isReceivedRequest"
-        outlined
-        text
+        color="secondary"
         target="_blank"
         @click="updateFriendRequest({ id: friendRequest._id, accepted: true })"
         >{{ $t('social.ACCEPT_REQUEST') }}
@@ -73,8 +72,7 @@
       >
       <v-btn
         v-if="isSentRequest"
-        outlined
-        text
+        color="secondary"
         target="_blank"
         @click="cancelFriendRequest({ id: friendRequest._id })"
         >{{ $t('social.CANCEL_REQUEST') }}
@@ -105,9 +103,14 @@ export default {
     rank: Number
   },
   computed: {
-    ...mapGetters(['friends', 'sentFriendRequests', 'receivedFriendRequests', 'user']),
+    ...mapGetters([
+      'friends',
+      'sentFriendRequests',
+      'receivedFriendRequests',
+      'user'
+    ]),
     isUser() {
-      return this.id === this.user._id;
+      return this.id === this.user._id
     },
     isFriend() {
       return this.friends.some((friend) => friend['_id'] === this.id)
@@ -193,7 +196,7 @@ export default {
   }
 }
 .user-actions {
-  justify-content: space-around;
+  justify-content: flex-start;
 }
 .v-list-item__subtitle.user-status {
   font-size: 1.175rem;

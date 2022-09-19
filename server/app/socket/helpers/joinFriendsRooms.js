@@ -5,7 +5,6 @@
  */
 const joinFriendsRooms = (socket, friends) => {
   friends.forEach((friendId) => {
-    console.log(`social-${friendId}`)
     socket.join(`social-${friendId}`)
   })
 }

@@ -3,8 +3,13 @@
     <QueueAccept
       :accepted="accepted"
       :players="possiblePlayers"
-      @accepted="accepted = true"
+      @accepted="accept()"
       v-if="acceptPhase"
+    />
+    <QueueError
+      @closed="onErrorClose()"
+      v-if="error && !acceptPhase"
+      :error="error"
     />
     <div class="queue-wrapper">
       <v-card
@@ -73,6 +78,7 @@
 import { mapActions, mapGetters } from 'vuex'
 import Timer from '@/components/common/Timer.vue'
 import QueueAccept from '@/components/QueueAccept.vue'
+import QueueError from '@/components/QueueError.vue'
 
 export default {
   name: 'Queue',
@@ -81,10 +87,11 @@ export default {
       count: 0,
       accepted: false,
       acceptPhase: false,
-      possiblePlayers: []
+      possiblePlayers: [],
+      error: null
     }
   },
-  components: { Timer, QueueAccept },
+  components: { Timer, QueueAccept, QueueError },
   methods: {
     ...mapActions(['addProfileData']),
     joinQueue() {
@@ -92,6 +99,15 @@ export default {
     },
     leaveQueue() {
       this.$socket.client.emit('queue-message', { event: 'leave' })
+    },
+    reset() {
+      this.accepted = false
+      this.acceptPhase = false
+      this.possiblePlayers = []
+    },
+    accept() {
+      this.accepted = true
+      this.$socket.client.emit('queue-message', { event: 'ready' })
     }
   },
   computed: {
@@ -109,6 +125,9 @@ export default {
       }
 
       return false
+    },
+    onErrorClose() {
+      this.error = null
     }
   },
   sockets: {
@@ -125,6 +144,23 @@ export default {
       if (data && data.players) {
         this.possiblePlayers = data.players
       }
+    },
+    PRIVATE_QUEUE_KICK(data) {
+      this.reset()
+      this.error = {
+        type: 'kicked'
+      }
+    },
+    PRIVATE_QUEUE_TIMEOUT(data) {
+      this.reset()
+      this.error = {
+        type: 'timeout',
+        players: data.unreadyProfiles
+      }
+
+      setTimeout(() => {
+        this.error = null
+      }, 8000)
     }
   }
 }
@@ -133,7 +169,7 @@ export default {
 <style lang="scss">
 .queue-wrapper {
   position: absolute;
-  left: 15px;
+  left: 119px;
   bottom: 15px;
   z-index: 2;
 

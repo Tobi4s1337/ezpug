@@ -8,7 +8,6 @@ const disconnect = (userId) => {
   if (userId) {
     updateStatus(userId, { online: false, lastSeen: Date.now() })
   }
-  console.log('disconnect')
 }
 
 module.exports = { disconnect }

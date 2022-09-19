@@ -15,7 +15,7 @@ export const getFormat = (date, formatStr) => {
 }
 
 export const getSince = (date) => {
-  date = new Date(date).toISOString();
+  date = new Date(date).toISOString()
   return formatDistance(parseISO(date), new Date(), {
     locale: localesDateFns[window.__localeId__],
     addSuffix: true

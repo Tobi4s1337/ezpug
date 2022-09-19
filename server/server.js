@@ -1,3 +1,6 @@
+process.title = 'ezpug-server';
+process.env.DEBUG = process.env.DEBUG || '*INFO* *WARN* *ERROR*';
+
 require('dotenv-safe').config()
 const express = require('express')
 const bodyParser = require('body-parser')

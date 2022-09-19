@@ -11,12 +11,19 @@
     @mouseleave.native="hover = false"
   >
     <v-list dense nav class="py-0">
-      <v-list-item two-line class="py-0 user-item online mt-1 mb-1">
+      <v-list-item
+        two-line
+        class="py-0 user-item online mt-1 mb-1"
+        :class="{
+          active: user.status && (user.status.inMatch || user.status.inQueue)
+        }"
+      >
         <v-list-item-avatar rounded size="54" class="mb-0 mt-0 user-avatar">
           <img :src="profile.avatar" />
         </v-list-item-avatar>
 
         <v-list-item-content>
+          {{ profile.name }}
           <v-list-item-title class="user-name">{{
             user.name
           }}</v-list-item-title>
@@ -54,7 +61,7 @@
         >
           <v-list class="online-list">
             <v-subheader class="friendlist-subheader"
-              ><v-icon left color="#90ba3c">mdi-access-point</v-icon>Freunde
+              ><v-icon left color="success">mdi-access-point</v-icon>Freunde
               Online ({{ onlineFriends.length }})</v-subheader
             >
             <FriendItem
@@ -136,7 +143,7 @@
               :name="request.recipient.name"
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
-              :avatar="friend.recipient.avatar"
+              :avatar="request.recipient.avatar"
               :id="request.recipient._id"
               rank="32"
               elo="1337"
@@ -251,6 +258,15 @@ export default {
 </script>
 
 <style lang="scss">
+.friendlist .v-navigation-drawer__content {
+  background: $bright-background;
+}
+
+.friendlist.theme--dark.v-navigation-drawer,
+.friendlist .theme--dark.v-tabs-items,
+.friendlist .v-slide-group__wrapper {
+  background: $dark-background;
+}
 html {
   scrollbar-width: none;
 }
@@ -329,8 +345,9 @@ html {
     padding: 0 16px 0px 12px;
   }
   .v-list-item.user-item {
-    padding-left: 2px;
+    padding-left: 0px;
     margin-top: 8px;
+    padding-right: 0px;
   }
   .friendlist-subheader {
     min-width: 200px;

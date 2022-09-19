@@ -163,19 +163,19 @@
       </v-flex>
       <v-flex xs12 v-else>
         <h3 class="mt-5 mb-2">Your Steam Profile</h3>
-        <v-btn :href="steamUrl" target="_blank">Steam</v-btn>
+        <v-btn color="secondary" :href="steamUrl" target="_blank">Steam</v-btn>
       </v-flex>
     </v-layout>
     <v-layout>
       <v-flex xs12 v-if="teamSpeakId">
         <h3 class="mt-5 mb-2">Unlink Your TeamSpeak Identity</h3>
-        <v-btn @click="unlinkTeamSpeak()">Unlink TeamSpeak</v-btn>
+        <v-btn color="secondary" @click="unlinkTeamSpeak()">Unlink TeamSpeak</v-btn>
       </v-flex>
     </v-layout>
     <v-layout>
       <v-flex xs12 v-if="hasPhoneNumber">
         <h3 class="mt-5 mb-2">Update your WhatsApp Number</h3>
-        <v-btn @click="whatsAppDialog = true">Link WhatsApp</v-btn>
+        <v-btn color="secondary" @click="whatsAppDialog = true">Link WhatsApp</v-btn>
         <div class="whats-app-switch-wrapper">
           <v-switch
             v-model="whatsAppEnabled"
@@ -187,7 +187,7 @@
       </v-flex>
       <v-flex xs12 v-else>
         <h3 class="mt-5 mb-2">Link your WhatsApp Number</h3>
-        <v-btn @click="whatsAppDialog = true">Link WhatsApp</v-btn>
+        <v-btn color="secondary" @click="whatsAppDialog = true">Link WhatsApp</v-btn>
         <v-switch
           inset
           label="Enable WhatsApp Notifications"

@@ -15,6 +15,7 @@
             placeholder="Dein Username"
             filled
             rounded
+            outlined
             v-model="username"
             dense
           ></v-text-field>

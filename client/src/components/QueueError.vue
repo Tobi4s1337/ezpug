@@ -1,16 +1,19 @@
 <template>
-  <v-dialog v-model="dialog" width="680" height="240" persistent>
-    <v-card class="queue-accept-wrapper" v-show="accepted">
+  <v-dialog v-model="dialog" width="680" height="288" @click:outside="close">
+    <v-card
+      class="queue-accept-wrapper"
+      v-show="error.type === 'timeout'"
+      v-if="error && error.players"
+    >
       <v-card-title class="queue-accept title-text">
-        MATCH AKZEPTIEREN
+        SPIEL ABGEBROCHEN
       </v-card-title>
 
       <v-card-text class="queue-accept">
         <div
           class="queue-accept"
-          v-for="player in players"
-          :key="player.avatar"
-          :class="{ ready: player.accepted }"
+          v-for="player in error.players"
+          :key="player.userId"
         >
           <v-list-item-avatar
             size="48"
@@ -22,66 +25,68 @@
           /></v-list-item-avatar>
         </div>
       </v-card-text>
-      <div class="accepted-amount">
-        {{ readyPlayers }}/10 Spieler sind bereit
+      <div class="accepted-amount" v-if="error.players.length > 1">
+        Die Spieler
+        <strong v-for="(player, index) in error.players" :key="player.userId"
+          >{{ player.name }}
+          {{ index + 1 === error.players.length ? ' ' : ', ' }}
+        </strong>
+        haben nicht rechtzeitig akzeptiert.
+      </div>
+      <div class="accepted-amount" v-else>
+        Der Spieler
+        <strong>{{ error.players[0].name }}</strong> hat nicht rechtzeitig
+        akzeptiert.
       </div>
     </v-card>
 
-    <v-card class="queue-accept-wrapper" v-show="!accepted">
+    <v-card class="queue-accept-wrapper" v-show="error.type === 'kicked'">
       <v-card-title class="queue-accept title-text">
-        MATCH AKZEPTIEREN
+        SPIEL ABGEBROCHEN
       </v-card-title>
 
-      <v-card-text class="queue-accept">
-        <div class="csgo-button" @click="accept()">ACCEPT</div>
+      <v-card-text class="queue-accept"
+        ><lottie
+          :options="defaultOptions"
+          autoplay
+          v-on:animCreated="handleAnimation"
+        />
       </v-card-text>
-      <div class="accepted-amount">
-        <Timer :date="getFutureTime()" />
-      </div>
+      <div class="accepted-amount">Du hast nicht rechtzeitig akzeptiert.</div>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import Timer from '@/components/common/Timer.vue'
+import Lottie from 'vue-lottie'
+import * as animationData from '@/assets/afk.json'
 
 export default {
-  name: 'QueueAccept',
+  name: 'QueueError',
   data() {
     return {
-      dialog: true
+      dialog: true,
+      defaultOptions: { animationData: animationData.default },
+      animationSpeed: 1
     }
   },
+  components: { lottie: Lottie },
   props: {
-    players: Array,
-    accepted: Boolean
-  },
-  components: { Timer },
-  computed: {
-    readyPlayers() {
-      if (!this.players) {
-        return 0
-      }
-
-      const readyPlayers = this.players.filter((player) => player.accepted)
-      return readyPlayers.length
-    }
+    error: Object
   },
   methods: {
-    accept() {
-      this.$emit('accepted')
+    handleAnimation: function (anim) {
+      this.anim = anim
     },
-    getFutureTime() {
-      let timeObject = new Date()
-      timeObject = new Date(timeObject.getTime() + 1000 * 30)
-      return timeObject
+    close() {
+      this.$emit('closed')
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .queue-accept {
   display: flex;
   justify-content: center;
@@ -91,7 +96,7 @@ export default {
   margin-left: 6px;
 }
 .queue-accept-wrapper {
-  height: 280px;
+  height: 288px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -100,12 +105,10 @@ export default {
     outline: 100px solid rgba(0, 0, 0, 0.336) !important;
     outline-offset: -100px;
     overflow: hidden;
-  }
 
-  .ready .v-avatar {
-    border: 2px solid #3cfd3c !important;
-    box-shadow: 0 0 5px #3cfd3c;
-    outline: 100px solid #3cfd3c1a !important;
+    border: 2px solid #fd3c3c !important;
+    box-shadow: 0 0 5px #fd3c3c;
+    outline: 100px solid #fd3c3c19 !important;
   }
 }
 .accepted-amount {
@@ -171,6 +174,8 @@ export default {
 }
 
 .v-card__text.queue-accept {
-  height: 105px;
+  height: 238px;
+  margin-top: -30px;
+  margin-bottom: -40px;
 }
 </style>

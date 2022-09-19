@@ -1,10 +1,10 @@
 <template>
-  <v-navigation-drawer width="112" permanent absolute class="sidebar">
+  <v-navigation-drawer width="104" permanent absolute class="sidebar">
     <v-list-item class="sidebar-logo-wrapper">
       <v-list-item-avatar
         tile
-        width="84"
-        height="84"
+        width="80"
+        height="80"
         rounded
         class="sidebar-logo"
       >
@@ -26,6 +26,26 @@
         <div class="sidebar-button-text">{{ link.title }}</div>
       </router-link>
     </v-list>
+
+    <template v-slot:append>
+      <div v-ripple="{ center: true }" class="sidebar-button" to="/settings">
+        <div class="sidebar-button-icon">
+          <v-icon disabled large>mdi-bell-outline</v-icon>
+        </div>
+        <div class="sidebar-button-text">Notifications</div>
+      </div>
+
+      <router-link
+        v-ripple="{ center: true }"
+        class="sidebar-button"
+        to="/settings"
+      >
+        <div class="sidebar-button-icon">
+          <v-icon disabled large>mdi-cog-outline</v-icon>
+        </div>
+        <div class="sidebar-button-text">Settings</div>
+      </router-link>
+    </template>
   </v-navigation-drawer>
 </template>
 
@@ -57,7 +77,13 @@ export default {
 </script>
 
 <style lang="scss">
+.v-navigation-drawer__border {
+  background-color: $border-color !important;
+}
 .sidebar {
+  &.v-navigation-drawer {
+    background: $dark-background;
+  }
   overflow: visible;
   .v-navigation-drawer__content {
     overflow: visible;
@@ -69,7 +95,7 @@ export default {
   justify-content: center;
   align-content: center;
   align-items: center;
-  height: 112px;
+  height: 104px;
   text-decoration: none;
 
   transition: 0.5s background;
@@ -130,9 +156,9 @@ export default {
 }
 
 .sidebar-logo {
-  min-width: 84px;
-  margin: auto;
-  margin-top: 14px;
-  margin-bottom: 14px;
+  min-width: 80px;
+  margin: auto !important;
+  margin-top: 14px !important;
+  margin-bottom: 14px !important;
 }
 </style>

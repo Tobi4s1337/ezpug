@@ -60,7 +60,6 @@ const updateStatus = (userId, status) => {
           })
           emitPrivateEvent(userId, 'UPDATE_USER', { status: newStatus })
           resolve(updatedUser)
-          console.log(status)
         }
       )
     })

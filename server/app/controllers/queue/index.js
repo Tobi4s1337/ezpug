@@ -50,9 +50,6 @@ class Queue {
   }
 
   async onMessage({ userId, event }) {
-    console.log('new event')
-    console.log(event)
-    console.log(userId)
     switch (event) {
       case 'join':
         this.beforeJoin({ userId })
@@ -79,11 +76,13 @@ class Queue {
       !this._possiblePlayers.includes(userId) ||
       this._readyPlayers.includes(userId)
     ) {
-      logger.warn('Unvalid user tried to ready up', userId)
+      logger.warn('Invalid user tried to ready up', userId)
       return false
     }
 
     this._readyPlayers.push(userId)
+
+    logger.info('Amount of ready players', this._readyPlayers.length)
 
     if (whatsApp) {
       this._whatsAppReady.push(userId)
@@ -97,7 +96,9 @@ class Queue {
 
     if (this._readyPlayers.length === 10) {
       clearTimeout(this._timeout)
-      this.createMatch()
+
+      logger.info('All players accepted, creating match...')
+      //this.createMatch()
     }
 
     return true
@@ -105,6 +106,10 @@ class Queue {
 
   async kickUnreadyPlayers() {
     try {
+      this._timeout = null
+
+      logger.info('Queue timed out, kicking players who did not accept')
+
       let playersToKick = []
 
       for (const player of this._possiblePlayers) {
@@ -117,12 +122,12 @@ class Queue {
 
       for (const player of playersToKick) {
         await this.removePlayer({ userId: player })
-        emitPrivateEvent(player, 'queue_kick', {})
+        emitPrivateEvent(player, 'QUEUE_KICK', {})
       }
 
       const unreadyProfiles = await idsToProfiles({ ids: playersToKick })
       for (const player of this._readyPlayers) {
-        emitPrivateEvent(player, 'queue_timeout', { unreadyProfiles })
+        emitPrivateEvent(player, 'QUEUE_TIMEOUT', { unreadyProfiles })
         notifyWhatsAppUser({
           userId: player,
           event: 'queue_timeout',
@@ -133,6 +138,8 @@ class Queue {
       this._possiblePlayers = []
       this._readyPlayers = []
       this._whatsAppReady = []
+
+      logger.info('Queue count after kicking inactive players', this.count)
 
       if (this.count > 9) {
         this.handleFullQueue()
@@ -162,6 +169,8 @@ class Queue {
 
       this.announceChange()
 
+      logger.info('Amount of users in queue', this.count)
+
       if (this.count > 9) {
         this.handleFullQueue()
       }
@@ -173,7 +182,11 @@ class Queue {
   removePlayer({ userId }) {
     return new Promise(async (resolve, reject) => {
       try {
-        if (this._timeout && this._possiblePlayers.includes(userId)) {
+        if (
+          this._timeout &&
+          this._possiblePlayers.includes(userId) &&
+          this._timeout
+        ) {
           return logger.warn(
             'Person tried to quit queue while requesting ready status'
           )
@@ -182,6 +195,8 @@ class Queue {
         this._players = this._players.filter((player) => player !== userId)
         await updateStatus(userId, { inQueue: false })
         this.announceChange()
+        logger.info('Current queue count', this.count)
+
         resolve()
       } catch (err) {
         reject('Unable to remove player from queue', err)
@@ -202,6 +217,8 @@ class Queue {
     }
 
     this.setReadyTimeout()
+
+    logger.info('Queue is full, started accept phase')
   }
 
   async createMatch() {
