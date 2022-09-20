@@ -16,8 +16,8 @@ const matchSchema = new Schema(
     gotv: String,
     mapVeto: {
       pool: Object,
-      teamOneBans: [],
-      teamTwoBans: []
+      teamOneBans: [String],
+      teamTwoBans: [String]
     },
     map: Object,
     players: [

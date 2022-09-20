@@ -49,7 +49,7 @@ const emitPublicEvent = ({ event, data }) => {
  * @param {Object} data - data related to event
  */
 const emitMatchEvent = (matchId, event, data) => {
-  io.to(`matchId-${matchId}`).emit(`MATCH_${event}`, data)
+  io.to(`match-${matchId}`).emit(`MATCH_${event}`, data)
 }
 
 /**

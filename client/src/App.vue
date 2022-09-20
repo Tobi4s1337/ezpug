@@ -12,7 +12,14 @@
       <loading />
       <v-container
         fluid
-        style="max-width: calc(100% - 182px); margin-left: 104px"
+        style="
+          padding: 0px;
+          max-width: calc(100% - 182px);
+          margin-left: 104px;
+          max-height: 100vh;
+          overflow-y: auto;
+          scrollbar-width: thin;
+        "
       >
         <transition name="fade" mode="out-in">
           <router-view />
@@ -103,6 +110,12 @@ export default {
       await this.getProfile()
       if (!this.profile.teamSpeakId) {
         this.$refs.teamspeak.getUsers()
+      }
+    },
+    PRIVATE_MATCH_START(data) {
+      if (data.matchId) {
+        console.log(this.$route)
+        this.$router.push('/match/' + data.matchId)
       }
     }
   }

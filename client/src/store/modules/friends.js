@@ -192,7 +192,7 @@ const mutations = {
     state.friends = state.friends.filter((friend) => {
       return friend._id !== userId
     })
-    this._vm.$socket.client.emit('leave-social', friend._id)
+    this._vm.$socket.client.emit('leave-social', userId)
   },
   [types.ADD_FRIEND](state, friend) {
     if (state.friends.some((e) => e._id === friend._id)) {

@@ -24,7 +24,7 @@ const {
 } = require('./helpers/index.js')
 const TeamSpeakHandler = require('../../../controllers/teamSpeak')
 
-const COUNTDOWN_TIME = 1000 * 30 // 30 seconds
+const COUNTDOWN_TIME = 1000 * 3 // 30 seconds
 
 /**
  * Match class.
@@ -98,12 +98,6 @@ class Match {
         this._teamTwo.captain = teamTwoCaptain
         this._teamTwo.name = 'team_' + teamTwoCaptainProfile.name
 
-        const teamSpeakHandler = await TeamSpeakHandler.getInstance()
-        this._teamSpeak = await teamSpeakHandler.createMatch({
-          teamOneName: this._teamOne.name,
-          teamTwoName: this._teamTwo.name
-        })
-
         logger.info('Created TeamSpeak Match')
 
         const matchId = await createMatchInDb({
@@ -120,9 +114,10 @@ class Match {
         this._teamTwo.players = match.teamTwo.players
         this._teamTwo.captain = match.teamTwo.captain
 
-        this.movePlayers()
         resolve(match)
 
+        this.redirectUsers()
+        this.setupTeamSpeak()
         this.startPlayerVeto()
         this.updatePlayersStatus()
       } catch (err) {
@@ -132,9 +127,24 @@ class Match {
     })
   }
 
-  async movePlayers() {
+  redirectUsers() {
+    try {
+      for (const player of this._players) {
+        emitPrivateEvent(player._id, 'MATCH_START', { matchId: this._matchId })
+      }
+    } catch (err) {
+      logger.error('Unable to redirect users', err)
+    }
+  }
+
+  async setupTeamSpeak() {
     try {
       const teamSpeakHandler = await TeamSpeakHandler.getInstance()
+      this._teamSpeak = await teamSpeakHandler.createMatch({
+        teamOneName: this._teamOne.name,
+        teamTwoName: this._teamTwo.name
+      })
+
       const playersTeamSpeakIds = []
 
       for (const player of this._players) {
@@ -161,7 +171,7 @@ class Match {
         cid: this._teamSpeak.teamTwoCid
       })
     } catch (err) {
-      logger.error('Issue moving players', err)
+      logger.err('Issue setting up TeamSpeak', err)
     }
   }
 
@@ -265,10 +275,10 @@ class Match {
 
       let bannedById = ''
 
-      if (this._mapVeto.teamOneBans.length < this._mapVeto.teamTwoBans.length) {
-        bannedById = this._teamOne.captain._id
-      } else {
+      if (this._mapVeto.teamTwoBans.length < this._mapVeto.teamOneBans.length) {
         bannedById = this._teamTwo.captain._id
+      } else {
+        bannedById = this._teamOne.captain._id
       }
 
       const availableMaps = this.availableMaps
@@ -294,10 +304,12 @@ class Match {
 
   async saveMatchState() {
     try {
-      await saveMatchToDb({
+      const match = await saveMatchToDb({
         matchId: this._matchId,
         match: this.matchStateDbFriendly
       })
+
+      logger.info('Updated match state', match)
     } catch (err) {
       logger.error('Failed to save match state', err)
     }
@@ -332,6 +344,8 @@ class Match {
   }
 
   async banMap({ bannedById, mapKey }) {
+    logger.info(`User ${bannedById} is trying to ban ${mapKey}`)
+
     let bannedMaps = this._mapVeto.teamOneBans.concat(this._mapVeto.teamTwoBans)
 
     if (bannedMaps.includes(mapKey)) {
@@ -360,9 +374,12 @@ class Match {
       this._mapVeto.teamTwoBans.push(mapKey)
     }
 
+    logger.info('Mapveto looks like this now', this._mapVeto)
+
     if (this.availableMaps.length === 1) {
       // set the only map that is not banned as the match map and start match
-      this._map = this.availableMaps[0]
+      this._map = this.getMapByKey({ mapKey: this.availableMaps[0] })
+      logger.info('Last remaining map is', this._map)
 
       try {
         await this.saveMatchState()
@@ -372,7 +389,11 @@ class Match {
       return this.startMatch()
     }
 
-    this.setPlayerVetoTimeout()
+    this.setMapVetoTimeout()
+  }
+
+  getMapByKey({ mapKey }) {
+    return this._mapVeto.pool.maps.filter((map) => map.key === mapKey)[0]
   }
 
   async pickPlayer({ pickedById, pickedId }) {
@@ -388,7 +409,7 @@ class Match {
         return logger.warn('Team One already has more players')
       }
 
-      this.addPlayerToTeam({ playerId: pickedId, teamOne: true })
+      await this.addPlayerToTeam({ playerId: pickedId, teamOne: true })
     }
 
     if (this._teamTwo.captain._id === pickedById) {
@@ -396,14 +417,19 @@ class Match {
         return logger.warn('Team Two already has more players')
       }
 
-      this.addPlayerToTeam({ playerId: pickedId, teamOne: false })
+      await this.addPlayerToTeam({ playerId: pickedId, teamOne: false })
     }
 
+    // move last remaining player to other team
     if (
-      this._teamTwo.players.length + this._teamOne.players.length + 2 ===
+      this._teamTwo.players.length + this._teamOne.players.length + 3 ===
       this._players.length
     ) {
       try {
+        await this.addPlayerToTeam({
+          playerId: this.playersToPick[0]._id,
+          teamOne: false
+        })
         await this.saveMatchState()
       } catch (err) {
         logger.erroror('Failed to save match state', err)
@@ -417,10 +443,10 @@ class Match {
   get availableMaps() {
     let maps = []
 
-    for (const map of this._mapVeto.pool) {
+    for (const map of this._mapVeto.pool.maps) {
       if (
         !this._mapVeto.teamOneBans.includes(map.key) &&
-        this._mapVeto.teamTwoBans.includes(map.key)
+        !this._mapVeto.teamTwoBans.includes(map.key)
       ) {
         maps.push(map.key)
       }
@@ -500,15 +526,15 @@ class Match {
   get playersToPick() {
     let availablePlayers = []
     const players = this._players
-    const teamOnePlayers = playersToIds(this._teamOne.players)
-    const teamTwoPlayers = playersToIds(this._teamTwo.players)
+    let teamOnePlayers = playersToIds(this._teamOne.players)
+    teamOnePlayers.push(this._teamOne.captain._id)
+    let teamTwoPlayers = playersToIds(this._teamTwo.players)
+    teamTwoPlayers.push(this._teamTwo.captain._id)
 
     for (const player of players) {
       if (
         !teamOnePlayers.includes(player._id) &&
-        !teamTwoPlayers.includes(player._id) &&
-        this._teamOne.captain._id !== player._id &&
-        this._teamTwo.captain._id !== player._id
+        !teamTwoPlayers.includes(player._id)
       ) {
         availablePlayers.push(player)
       }
@@ -560,7 +586,6 @@ class Match {
 
   get matchStateDbFriendly() {
     const state = this.matchState
-    console.log(state)
     state.players =
       this._players.length > 0 && this._players[0]._id
         ? playersToIds(this._players)
