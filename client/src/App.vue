@@ -140,6 +140,10 @@ export default {
     background-color: $dark-background;
   }
 
+  .theme--dark.v-divider {
+    border-color: $border-color-filled;
+  }
+
   .theme--dark.v-navigation-drawer .v-divider {
     border-color: $border-color;
   }
