@@ -1,6 +1,10 @@
 <template>
   <v-card outlined dark elevation="1" color="background">
-    <v-list-item three-line class="text-left player-wrapper">
+    <v-list-item
+      three-line
+      class="text-left player-wrapper"
+      :class="{ small: small }"
+    >
       <v-list-item-content>
         <v-list-item-title class="player-name">
           {{ name }} #{{ rank }} {{ captain ? '👑' : '' }}
@@ -28,9 +32,9 @@
       /></v-list-item-avatar>
     </v-list-item>
 
-    <v-divider></v-divider>
+    <v-divider v-if="!small"></v-divider>
 
-    <v-card-actions class="user-actions">
+    <v-card-actions class="user-actions" v-if="!small">
       <v-btn color="white" icon :href="steamUrl" target="_blank"
         ><v-icon dark> mdi-steam </v-icon></v-btn
       >
@@ -89,7 +93,8 @@ export default {
     avatar: String,
     elo: Number,
     rank: Number,
-    captain: Boolean
+    captain: Boolean,
+    small: Boolean
   },
   computed: {
     ...mapGetters([
@@ -235,5 +240,16 @@ export default {
 }
 .player-wrapper {
   padding: 0 12px 0px 12px;
+  &.small {
+    min-height: 78px;
+    max-height: 78px;
+    .v-list-item__content {
+      padding: 8px 0;
+    }
+    .user-avatar {
+      margin-top: 8px !important;
+      margin-bottom: 8px !important;
+    }
+  }
 }
 </style>

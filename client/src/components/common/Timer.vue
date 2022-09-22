@@ -1,6 +1,8 @@
 <template>
   <div>
-    <span>{{ timerMinutes }}:{{ timerSeconds }}</span>
+    <span class="timer" :class="{ final: seconds < 11 && minutes === 0 }"
+      >{{ timerMinutes }}:{{ timerSeconds }}</span
+    >
   </div>
 </template>
 
