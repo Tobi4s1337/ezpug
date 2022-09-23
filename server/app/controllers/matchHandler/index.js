@@ -47,7 +47,7 @@ class MatchHandler {
         const match = new Match({ type, players })
         await match.initMatch()
 
-        this._matches[match.matchId]
+        this._matches[match.matchId] = match;
 
         resolve(match.matchId)
       } catch (err) {

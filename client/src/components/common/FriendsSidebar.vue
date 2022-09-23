@@ -15,7 +15,10 @@
         two-line
         class="py-0 user-item online mt-1 mb-1"
         :class="{
-          active: user.status && (user.status.inMatch || user.status.inQueue)
+          active:
+            user.status &&
+            ((user.status.match && user.status.match.active) ||
+              user.status.inQueue)
         }"
       >
         <v-list-item-avatar rounded size="54" class="mb-0 mt-0 user-avatar">

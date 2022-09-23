@@ -6,6 +6,8 @@ const initTeamSpeak = async () => {
   try {
     const teamSpeakHandler = await TeamSpeakHandler.getInstance()
 
+    teamSpeakHandler.updateFloodProtection()
+
     teamSpeakHandler.on('user-connect', (teamSpeakId) => {
       User.findOne({ teamSpeakId }, (err, foundUser) => {
         if (err || !foundUser) {

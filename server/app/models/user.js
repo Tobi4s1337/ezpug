@@ -123,6 +123,10 @@ const UserSchema = new mongoose.Schema(
             type: Number,
             default: 0
           }
+        },
+        map: {
+          type: String,
+          default: 'Unknown'
         }
       },
       lastSeen: {

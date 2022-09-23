@@ -122,6 +122,7 @@ class Match {
         this.setupTeamSpeak()
         this.startPlayerVeto()
         this.updatePlayersStatus()
+        this.updateTeamSpeakStatus()
       } catch (err) {
         logger.error('Error while initiating match', err)
         reject(err)
@@ -177,6 +178,31 @@ class Match {
     }
   }
 
+  async updateTeamSpeakStatus() {
+    try {
+      const teamSpeakHandler = await TeamSpeakHandler.getInstance()
+
+      let title = ''
+
+      if (this._status === 'playerveto') {
+        title = 'Status: Playerveto'
+      }
+      if (this._status === 'mapveto') {
+        title = 'Status: Mapveto'
+      }
+      if (this._status === 'active') {
+        title = `Status: [${this._teamOne.roundsWon}] : [${this._teamTwo.roundsWon}] | ${this._map.name}`
+      }
+
+      teamSpeakHandler.editChannel({
+        cid: this._teamSpeak.statusCid,
+        options: { channelName: title }
+      })
+    } catch (err) {
+      logger.error('Issue updating teamspeak status channel', err)
+    }
+  }
+
   async updatePlayersStatus() {
     try {
       let status = {
@@ -184,9 +210,10 @@ class Match {
         isTeamOne: false,
         status: this._status,
         score: {
-          teamOne: this._teamOne.score,
-          teamTwo: this._teamTwo.score
-        }
+          teamOne: this._teamOne.roundsWon,
+          teamTwo: this._teamTwo.roundsWon
+        },
+        map: this._map && this._map.name ? this._map.name : 'Unknown'
       }
 
       if (this._status === 'playerveto' || this._status === 'mapveto') {
@@ -198,13 +225,15 @@ class Match {
         return
       }
 
-      const teamOnePlayers = playersToIds(this._teamOne.players).push(
+      let teamOnePlayers = playersToIds(this._teamOne.players)
+      teamOnePlayers.push(
         this._teamOne.captain._id
           ? this._teamOne.captain._id
           : this._teamOne.captain
       )
 
-      const teamTwoPlayers = playersToIds(this._teamTwo.players).push(
+      let teamTwoPlayers = playersToIds(this._teamTwo.players)
+      teamTwoPlayers.push(
         this._teamTwo.captain._id
           ? this._teamTwo.captain._id
           : this._teamTwo.captain
@@ -238,7 +267,9 @@ class Match {
         data: { countdown: this._countdown, matchId: this._matchId }
       })
     }, 2000)
-
+    this._status = 'active'
+    this.updatePlayersStatus()
+    this.updateTeamSpeakStatus()
     // get gameserver
     // set up gameserver
     // handle match end event
@@ -333,6 +364,7 @@ class Match {
     })
     this.setMapVetoTimeout()
     this.updatePlayersStatus()
+    this.updateTeamSpeakStatus()
   }
 
   updateRemoteMatchState() {
@@ -350,7 +382,7 @@ class Match {
       console.log(this.matchStateDbFriendly.teamOne.players)
       console.log(match.teamOne.players)
       console.log(this.matchStateDbFriendly.teamTwo.players)
-      console.log(match.teamTwo.player)
+      console.log(match.teamTwo.players)
     } catch (err) {
       logger.error('Failed to save match state', err)
     }
@@ -393,7 +425,7 @@ class Match {
       return logger.warn('Map is already banned')
     }
 
-    if (this._teamOne.captain._id === bannedById) {
+    if (this._teamOne.captain._id.toString() === bannedById.toString()) {
       if (this._mapVeto.teamOneBans.length > this._mapVeto.teamTwoBans.length) {
         return logger.warn('Team One already has more banned maps')
       }
@@ -409,9 +441,11 @@ class Match {
       })
     }
 
-    if (this._teamTwo.captain._id === bannedById) {
-      if (this._mapVeto.teamTwoBans.length > this._mapVeto.teamOneBans.length) {
-        return logger.warn('Team Two already has more banned maps')
+    if (this._teamTwo.captain._id.toString() === bannedById.toString()) {
+      if (
+        this._mapVeto.teamTwoBans.length >= this._mapVeto.teamOneBans.length
+      ) {
+        return logger.warn('Team Two already has more or equal banned maps')
       }
 
       this._mapVeto.teamTwoBans.push(mapKey)
@@ -468,7 +502,7 @@ class Match {
     console.log(this._teamOne.captain._id)
     console.log(this._teamTwo.captain._id)
 
-    if (this._teamOne.captain._id === pickedById) {
+    if (this._teamOne.captain._id.toString() === pickedById.toString()) {
       if (this._teamOne.players.length > this._teamTwo.players.length) {
         return logger.warn('Team One already has more players')
       }
@@ -485,9 +519,9 @@ class Match {
       })
     }
 
-    if (this._teamTwo.captain._id === pickedById) {
-      if (this._teamTwo.players.length > this._teamTwo.players.length) {
-        return logger.warn('Team Two already has more players')
+    if (this._teamTwo.captain._id.toString() === pickedById.toString()) {
+      if (this._teamTwo.players.length >= this._teamOne.players.length) {
+        return logger.warn('Team Two already has more or equal players')
       }
 
       await this.addPlayerToTeam({ playerId: pickedId, teamOne: false })
@@ -579,9 +613,10 @@ class Match {
   }
 
   onMessage({ userId, event, data }) {
-    if (!playersToIds(this._players).includes(userId)) {
-      return
-    }
+    // Do if check like below only for captains or permission relevant stuff
+    //if (!playersToIds(this._players).includes(userId)) {
+    //  return logger.warn(`User ${userId} is not part of this game`)
+    //}
 
     switch (event) {
       case 'message':
@@ -592,9 +627,36 @@ class Match {
       case 'ban-map':
         this.banMap({ bannedById: userId, mapKey: data.mapKey })
         break
+      case 'get-state':
+        this.sendState({ userId })
+        break
       default:
         logger.warn('Unhandled event', event)
     }
+  }
+
+  sendState({ userId }) {
+    console.log('Sending state')
+    emitPrivateEvent(userId, 'MATCH_SET_TEAM_ONE', {
+      matchId: this._matchId,
+      teamOne: this._teamOne.players
+    })
+    emitPrivateEvent(userId, 'MATCH_SET_TEAM_TWO', {
+      matchId: this._matchId,
+      teamTwo: this._teamOne.players
+    })
+    emitPrivateEvent(userId, 'MATCH_SET_MAPVETO', {
+      matchId: this._matchId,
+      mapVeto: this._mapVeto
+    })
+    emitPrivateEvent(userId, 'MATCH_SET_STATUS', {
+      matchId: this._matchId,
+      status: this._status
+    })
+    emitPrivateEvent({
+      event: 'MATCH_SET_COUNTDOWN',
+      data: { countdown: this._countdown, matchId: this._matchId }
+    })
   }
 
   get matchId() {

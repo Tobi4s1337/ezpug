@@ -147,6 +147,7 @@
                 v-for="(player, index) in playersExcludingCaptains"
                 :key="player._id"
                 :class="{ 'mb-3': index < 7 }"
+                @click="pickPlayer(player._id)"
               >
                 <PlayerCard
                   :name="player.name"
@@ -158,7 +159,6 @@
                   class="player-card"
                   :class="{ picked: !playersToPick.includes(player._id) }"
                   :steam-url="player.steamUrl"
-                  @click="pickPlayer(player._id)"
                 />
               </div>
             </v-sheet>
@@ -204,7 +204,7 @@
             class="ma-0 pt-0 pb-0"
             v-else-if="match.status === 'active'"
           >
-            <v-card class="map-card map-card-large mb-3">
+            <v-card class="map-card-large mb-3">
               <v-img
                 :src="'/maps/' + match.map.key + '.jpg'"
                 aspect-ratio="1.7"
@@ -436,22 +436,37 @@ export default {
       }
       return ids
     },
+    getMatchState() {
+      this.$socket.client.emit('match-message', {
+        event: 'get-state',
+        data: {
+          matchId: this.matchId
+        }
+      })
+    },
     pickPlayer(userId) {
-      if (!isCaptain) {
-        return
+      if (!this.isCaptain) {
+        return console.log('You are no captain')
       }
-      this.$socket.client.emit('match-pick-player', {
-        userId,
-        matchId: this.matchId
+
+      this.$socket.client.emit('match-message', {
+        event: 'pick-player',
+        data: {
+          pickedId: userId,
+          matchId: this.matchId
+        }
       })
     },
     banMap(mapKey) {
-      if (!isCaptain) {
-        return
+      if (!this.isCaptain) {
+        return console.log('You are no captain')
       }
-      this.$socket.client.emit('match-ban-map', {
-        mapKey,
-        matchId: this.matchId
+      this.$socket.client.emit('match-message', {
+        event: 'ban-map',
+        data: {
+          mapKey,
+          matchId: this.matchId
+        }
       })
     }
   },
@@ -518,12 +533,41 @@ export default {
 
       this.countdown = new Date(data.countdown)
     },
-    MATCH_SET_STATE(data) {
+    PRIVATE_MATCH_SET_TEAM_ONE(data) {
       if (data.matchId !== this.matchId) {
         return
       }
 
-      this.match = data.match
+      this.match.teamOne.players = data.teamOne
+    },
+    PRIVATE_MATCH_SET_TEAM_TWO(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.teamTwo.players = data.teamTwo
+    },
+    PRIVATE_MATCH_SET_MAPVETO(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.mapVeto = data.mapVeto
+    },
+    PRIVATE_MATCH_SET_STATUS(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      console.log('inside socket state update thingy')
+      this.match.status = data.status
+    },
+    PRIVATE_MATCH_SET_COUNTDOWN(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.countdown = new Date(data.countdown)
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -531,6 +575,7 @@ export default {
       .get('/match/' + to.params.matchId)
       .then(function (response) {
         next((vm) => {
+          console.log('After axios call')
           vm.match = response.data
           vm.matchId = to.params.matchId
         })
@@ -541,7 +586,14 @@ export default {
       })
   },
   async mounted() {
-    this.$socket.client.emit('join-match', this.$route.params.matchId)
+    this.$nextTick(() => {
+      // dumb hack
+      setTimeout(() => {
+        this.getMatchState()
+        this.$socket.client.emit('join-match', this.$route.params.matchId)
+        console.log('after requesting match state via socket')
+      }, 1000)
+    })
   }
 }
 </script>

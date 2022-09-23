@@ -102,6 +102,16 @@ class TeamSpeakHandler extends EventEmitter {
     }
   }
 
+  async updateFloodProtection() {
+    try {
+      const result = await this._teamSpeak.instanceEdit({
+        serverinstanceServerqueryFloodCommands: 999
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   async createDefaultChannels() {
     try {
       const blackSpacerTwo = await this.createChannel({

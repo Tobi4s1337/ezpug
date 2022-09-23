@@ -4,7 +4,7 @@
     :class="{
       online: status.online,
       offline: !status.online,
-      active: status.inQueue || status.inMatch
+      active: status.inQueue || (status.match && status.match.active)
     }"
     >{{ statusText }}
     <v-icon v-if="status.teamSpeak" small class="ml-1 ts-icon"
@@ -35,8 +35,34 @@ export default {
         if (this.status.inQueue) {
           return this.$t('status.IN_QUEUE')
         }
-        if (this.status.inMatch) {
-          return this.$t('status.IN_MATCH')
+        if (this.status.match && this.status.match.active) {
+          const match = this.status.match
+          let example = {
+            score: {
+              teamOne: 0,
+              teamTwo: 0
+            },
+            active: true,
+            isTeamOne: true,
+            status: 'active'
+          }
+          if (match.status === 'playerveto') {
+            return 'In Lobby: Playerveto'
+          }
+
+          if (match.status === 'mapveto') {
+            return 'In Lobby: Mapveto'
+          }
+
+          if (match.status === 'active') {
+            let text = `In Spiel - ${match.map} `
+
+            if (match.status.isTeamOne) {
+              return text + `[${match.score.teamOne} : ${match.score.teamTwo}]`
+            }
+
+            return text + `[${match.score.teamTwo} : ${match.score.teamOne}]`
+          }
         }
         return this.$t('status.ONLINE')
       }

@@ -7,7 +7,7 @@
         :class="{
           online: status.online,
           offline: !status.online,
-          active: status.inQueue || status.inMatch
+          active: status.inQueue || (status.match && status.match.active)
         }"
         class="friend-list-item"
       >

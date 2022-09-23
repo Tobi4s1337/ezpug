@@ -106,18 +106,24 @@ io.on('connection', (socket) => {
   })
 
   socket.on('match-message', async (msg) => {
-    if (!msg.matchId || !socket.userId || !msg.event || !msg.data) {
+    if (!socket.userId || !msg.event || !msg.data) {
       return
     }
 
     try {
       const matchHandler = await MatchHandler.getInstance()
 
-      if (!matchHandler.matches[msg.matchId]) {
-        return logger.warn('No match found')
+      if (!msg.data || !msg.data.matchId) {
+        return logger.warn('Invalid match socket event')
       }
 
-      matchHandler.matches[msg.matchId].onMessage({
+      if (!matchHandler._matches[msg.data.matchId]) {
+        return logger.warn('No match found')
+
+        console.log(matchHandler._matches)
+      }
+
+      matchHandler._matches[msg.data.matchId].onMessage({
         userId: socket.userId,
         event: msg.event,
         data: msg.data
