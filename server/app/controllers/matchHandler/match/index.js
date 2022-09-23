@@ -20,7 +20,8 @@ const {
   playersToIds,
   getTeamCaptains,
   getTimeLeft,
-  idToProfile
+  idToProfile,
+  getFutureTime
 } = require('./helpers/index.js')
 const TeamSpeakHandler = require('../../../controllers/teamSpeak')
 
@@ -74,6 +75,7 @@ class Match {
     }
     this._status = 'playerveto'
     this._timeout = null
+    this._countdown = null
   }
 
   initMatch() {
@@ -225,6 +227,18 @@ class Match {
   }
 
   startMatch() {
+    setTimeout(() => {
+      this.emitEvent({
+        event: 'CHANGE_STATUS',
+        data: { matchId: this._matchId, status: 'active' }
+      })
+      this._countdown = getFutureTime({ timeAdded: 5 * 60 * 1000 })
+      this.emitEvent({
+        event: 'SET_COUNTDOWN',
+        data: { countdown: this._countdown, matchId: this._matchId }
+      })
+    }, 2000)
+
     // get gameserver
     // set up gameserver
     // handle match end event
@@ -232,7 +246,10 @@ class Match {
 
   startPlayerVeto() {
     this._status = 'playerveto'
-    this.emitEvent({ event: 'status-update', data: { status: 'playerveto' } })
+    this.emitEvent({
+      event: 'CHANGE_STATUS',
+      data: { matchId: this._matchId, status: 'playerveto' }
+    })
     this.setPlayerVetoTimeout()
   }
 
@@ -240,6 +257,12 @@ class Match {
     if (this._timeout) {
       clearTimeout(this._timeout)
     }
+
+    this._countdown = getFutureTime({ timeAdded: COUNTDOWN_TIME })
+    this.emitEvent({
+      event: 'SET_COUNTDOWN',
+      data: { countdown: this._countdown, matchId: this._matchId }
+    })
 
     this._timeout = setTimeout(() => {
       // pick random available player
@@ -255,6 +278,11 @@ class Match {
 
       const playersToPick = this.playersToPick
 
+      console.log('Players to pick')
+      console.log(this._teamOne.captain._id)
+      console.log(this._teamTwo.captain._id)
+      console.log(playersToPick)
+
       const pickedId =
         playersToPick[Math.floor(Math.random() * playersToPick.length)]._id
 
@@ -268,6 +296,12 @@ class Match {
     if (this._timeout) {
       clearTimeout(this._timeout)
     }
+
+    this._countdown = getFutureTime({ timeAdded: COUNTDOWN_TIME })
+    this.emitEvent({
+      event: 'SET_COUNTDOWN',
+      data: { countdown: this._countdown, matchId: this._matchId }
+    })
 
     this._timeout = setTimeout(() => {
       // ban random available map
@@ -293,7 +327,10 @@ class Match {
 
   startMapVeto() {
     this._status = 'mapveto'
-    this.emitEvent({ event: 'status-update', data: { status: 'mapveto' } })
+    this.emitEvent({
+      event: 'CHANGE_STATUS',
+      data: { matchId: this._matchId, status: 'mapveto' }
+    })
     this.setMapVetoTimeout()
     this.updatePlayersStatus()
   }
@@ -310,6 +347,10 @@ class Match {
       })
 
       logger.info('Updated match state', match)
+      console.log(this.matchStateDbFriendly.teamOne.players)
+      console.log(match.teamOne.players)
+      console.log(this.matchStateDbFriendly.teamTwo.players)
+      console.log(match.teamTwo.player)
     } catch (err) {
       logger.error('Failed to save match state', err)
     }
@@ -359,9 +400,11 @@ class Match {
 
       this._mapVeto.teamOneBans.push(mapKey)
       this.emitEvent({
-        event: 'banned-map',
+        event: 'BAN_MAP',
         data: {
-          mapVeto: this._mapVeto
+          matchId: this._matchId,
+          teamOne: true,
+          mapKey
         }
       })
     }
@@ -372,6 +415,15 @@ class Match {
       }
 
       this._mapVeto.teamTwoBans.push(mapKey)
+
+      this.emitEvent({
+        event: 'BAN_MAP',
+        data: {
+          matchId: this._matchId,
+          teamOne: false,
+          mapKey
+        }
+      })
     }
 
     logger.info('Mapveto looks like this now', this._mapVeto)
@@ -380,6 +432,11 @@ class Match {
       // set the only map that is not banned as the match map and start match
       this._map = this.getMapByKey({ mapKey: this.availableMaps[0] })
       logger.info('Last remaining map is', this._map)
+
+      this.emitEvent({
+        event: 'SET_MAP',
+        data: { map: this._map, matchId: this._matchId }
+      })
 
       try {
         await this.saveMatchState()
@@ -399,10 +456,17 @@ class Match {
   async pickPlayer({ pickedById, pickedId }) {
     if (
       playersToIds(this._teamOne.players).includes(pickedId) ||
-      playersToIds(this._teamTwo.players).includes(pickedId)
+      playersToIds(this._teamTwo.players).includes(pickedId) ||
+      this._teamOne.captain._id == pickedId ||
+      this._teamTwo.captain._id == pickedId
     ) {
       return logger.warn('Player is already part of a team')
     }
+    console.log('Team One', playersToIds(this._teamOne.players))
+    console.log('Team Two', playersToIds(this._teamTwo.players))
+    console.log('Picked ID', pickedId)
+    console.log(this._teamOne.captain._id)
+    console.log(this._teamTwo.captain._id)
 
     if (this._teamOne.captain._id === pickedById) {
       if (this._teamOne.players.length > this._teamTwo.players.length) {
@@ -410,6 +474,15 @@ class Match {
       }
 
       await this.addPlayerToTeam({ playerId: pickedId, teamOne: true })
+
+      this.emitEvent({
+        event: 'PICK_PLAYER',
+        data: {
+          matchId: this._matchId,
+          teamOne: true,
+          userId: pickedId
+        }
+      })
     }
 
     if (this._teamTwo.captain._id === pickedById) {
@@ -418,6 +491,15 @@ class Match {
       }
 
       await this.addPlayerToTeam({ playerId: pickedId, teamOne: false })
+
+      this.emitEvent({
+        event: 'PICK_PLAYER',
+        data: {
+          matchId: this._matchId,
+          teamOne: false,
+          userId: pickedId
+        }
+      })
     }
 
     // move last remaining player to other team
@@ -426,13 +508,23 @@ class Match {
       this._players.length
     ) {
       try {
+        this.emitEvent({
+          event: 'PICK_PLAYER',
+          data: {
+            matchId: this._matchId,
+            teamOne: false,
+            userId: this.playersToPick[0]._id
+          }
+        })
+
         await this.addPlayerToTeam({
           playerId: this.playersToPick[0]._id,
           teamOne: false
         })
+
         await this.saveMatchState()
       } catch (err) {
-        logger.erroror('Failed to save match state', err)
+        logger.error('Failed to save match state', err)
       }
       return this.startMapVeto()
     }
@@ -465,20 +557,13 @@ class Match {
       const teamSpeakHandler = await TeamSpeakHandler.getInstance()
       const player = this.playersMap[playerId]
 
-      logger.info('Player info taken from playersMap', player)
+      //logger.info('Player info taken from playersMap', player)
 
       if (teamOne) {
         this._teamOne.players.push(player)
         teamSpeakHandler.moveUserToChannel({
           teamSpeakId: player.teamSpeakId,
           cid: this._teamSpeak.teamOneCid
-        })
-
-        this.emitEvent({
-          event: 'update-team-one',
-          data: {
-            players: this._teamOne.players
-          }
         })
         return
       }
@@ -487,13 +572,6 @@ class Match {
       teamSpeakHandler.moveUserToChannel({
         teamSpeakId: player.teamSpeakId,
         cid: this._teamSpeak.teamTwoCid
-      })
-
-      this.emitEvent({
-        event: 'update-team-two',
-        data: {
-          players: this._teamTwo.players
-        }
       })
     } catch (err) {
       logger.error(err)
@@ -527,14 +605,14 @@ class Match {
     let availablePlayers = []
     const players = this._players
     let teamOnePlayers = playersToIds(this._teamOne.players)
-    teamOnePlayers.push(this._teamOne.captain._id)
     let teamTwoPlayers = playersToIds(this._teamTwo.players)
-    teamTwoPlayers.push(this._teamTwo.captain._id)
 
     for (const player of players) {
       if (
         !teamOnePlayers.includes(player._id) &&
-        !teamTwoPlayers.includes(player._id)
+        !teamTwoPlayers.includes(player._id) &&
+        this._teamOne.captain._id.toString() !== player._id.toString() &&
+        this._teamTwo.captain._id.toString() !== player._id.toString()
       ) {
         availablePlayers.push(player)
       }
@@ -579,7 +657,6 @@ class Match {
       demoLink: this._demoLink,
       stats: this._stats,
       teamSpeak: this._teamSpeak,
-      playersToPick: this.playersToPick,
       timer: this._timeout ? getTimeLeft(this._timeout) : -1
     }
   }
@@ -591,7 +668,7 @@ class Match {
         ? playersToIds(this._players)
         : this._players
     state.teamOne.players = playersToIds(this._teamOne.players)
-    state.teamTwo.players = playersToIds(this._teamOne.players)
+    state.teamTwo.players = playersToIds(this._teamTwo.players)
 
     delete state.playersToPick
 

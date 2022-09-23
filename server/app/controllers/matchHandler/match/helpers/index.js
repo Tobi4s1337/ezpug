@@ -7,6 +7,7 @@ const { getTeamCaptains } = require('./getTeamCaptains')
 const { getActiveMatches } = require('./getActiveMatches')
 const { getTimeLeft } = require('./getTimeLeft')
 const { idToProfile } = require('./idToProfile')
+const { getFutureTime } = require('./getFutureTime')
 
 module.exports = {
   createMatchInDb,
@@ -17,5 +18,6 @@ module.exports = {
   getTeamCaptains,
   getActiveMatches,
   getTimeLeft,
-  idToProfile
+  idToProfile,
+  getFutureTime
 }

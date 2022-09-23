@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="match-wrapper">
+  <v-container fluid class="match-wrapper" v-if="match && match.teamOne">
     <v-row>
       <v-sheet
         rounded
@@ -10,7 +10,15 @@
       >
         <v-container fluid>
           <v-row>
-            <v-col cols="12" sm="4">
+            <v-col
+              cols="12"
+              sm="4"
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+              "
+            >
               <div class="match-team-profile match-team-profile-align-right">
                 <div class="match-team-profile-team-stats">
                   <div class="match-team-profile-label">Team</div>
@@ -30,12 +38,20 @@
             <v-col cols="12" sm="4">
               <div class="match-status-wrapper">
                 <div class="match-timer">
-                  <Timer :date="getFutureTime()" />
+                  <Timer :date="countdown" />
                 </div>
                 <div class="match-status-text">{{ status }}</div>
               </div>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col
+              cols="12"
+              sm="4"
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+              "
+            >
               <div class="match-team-profile match-team-profile-align-left">
                 <v-avatar class="match-team-profile-avatar">
                   <img
@@ -56,7 +72,22 @@
       </v-sheet>
     </v-row>
     <v-row>
-      <v-container fluid class="mt-4">
+      <v-tabs
+        background-color="brightBackground"
+        width="100%"
+        elevation="4"
+        style="border-radius: 4px"
+        class="mt-3"
+        color="success"
+        rounded
+      >
+        <v-tab>MATCH LOBBY</v-tab>
+        <v-tab disabled>SCOREBOARD</v-tab>
+        <v-tab disabled>ANALYTICS</v-tab>
+      </v-tabs>
+    </v-row>
+    <v-row :class="{ 'is-captain': isCaptain }">
+      <v-container fluid class="mt-3">
         <v-row>
           <v-col cols="12" sm="4" class="ma-0 pa-0">
             <v-sheet
@@ -67,24 +98,35 @@
               color="brightBackground"
             >
               <PlayerCard
-                class="mb-3 picking"
+                :class="{ picking: currentTurn === 1 }"
+                class="mb-3"
                 :key="match.teamOne.captain.name"
                 :name="match.teamOne.captain.name"
                 :avatar="match.teamOne.captain.avatar"
+                :id="match.teamOne.captain._id"
                 :elo="match.teamOne.captain.elo"
                 :rank="match.teamOne.captain.rank"
+                :steam-url="match.teamOne.captain.steamUrl"
                 :captain="true"
               />
-              <div v-for="(n, i) in 4" :key="i" :class="{ 'mb-3': i < 3 }">
-                <PlayerCard
-                  v-if="match.teamOne.players[i]"
-                  :name="match.teamOne.players[i].name"
-                  :avatar="match.teamOne.players[i].avatar"
-                  :elo="match.teamOne.players[i].elo"
-                  :rank="match.teamOne.players[i].rank"
-                />
-                <SkeletonPlayerCard v-else />
-              </div>
+              <transition-group
+                mode="out-in"
+                enter-active-class="animated slideInLeft"
+                leave-active-class="animated slideOutRight"
+              >
+                <div v-for="(n, i) in 4" :key="i" :class="{ 'mb-3': i < 3 }">
+                  <PlayerCard
+                    v-if="match.teamOne.players[i]"
+                    :name="match.teamOne.players[i].name"
+                    :avatar="match.teamOne.players[i].avatar"
+                    :id="match.teamOne.players[i]._id"
+                    :elo="match.teamOne.players[i].elo"
+                    :rank="match.teamOne.players[i].rank"
+                    :steam-url="match.teamOne.players[i].steamUrl"
+                  />
+                  <SkeletonPlayerCard v-else />
+                </div>
+              </transition-group>
             </v-sheet>
           </v-col>
           <v-col
@@ -109,11 +151,14 @@
                 <PlayerCard
                   :name="player.name"
                   :avatar="player.avatar"
+                  :id="player._id"
                   :elo="player.elo"
                   :rank="player.rank"
                   :small="true"
                   class="player-card"
                   :class="{ picked: !playersToPick.includes(player._id) }"
+                  :steam-url="player.steamUrl"
+                  @click="pickPlayer(player._id)"
                 />
               </div>
             </v-sheet>
@@ -144,7 +189,11 @@
                   :team-one-banned="match.mapVeto.teamOneBans.includes(map.key)"
                   :team-two-banned="match.mapVeto.teamTwoBans.includes(map.key)"
                   class="map-card"
-                  :class="{ banned: !mapsToBan.includes(map.key) }"
+                  :class="{
+                    banned: !mapsToBan.includes(map.key),
+                    picked: match.map && match.map.key === map.key
+                  }"
+                  @click="banMap(map.key)"
                 />
               </div>
             </v-sheet>
@@ -155,7 +204,7 @@
             class="ma-0 pt-0 pb-0"
             v-else-if="match.status === 'active'"
           >
-            <v-card class="map-card map-card-large banned mb-3">
+            <v-card class="map-card map-card-large mb-3">
               <v-img
                 :src="'/maps/' + match.map.key + '.jpg'"
                 aspect-ratio="1.7"
@@ -204,20 +253,25 @@
             >
               <PlayerCard
                 class="mb-3"
+                :class="{ picking: currentTurn === 2 }"
                 :key="match.teamTwo.captain.name"
                 :name="match.teamTwo.captain.name"
                 :avatar="match.teamTwo.captain.avatar"
+                :id="match.teamTwo.captain._id"
                 :elo="match.teamTwo.captain.elo"
                 :rank="match.teamTwo.captain.rank"
+                :steam-url="match.teamTwo.captain.steamUrl"
                 :captain="true"
               />
               <div v-for="(n, i) in 4" :key="i" :class="{ 'mb-3': i < 3 }">
                 <PlayerCard
                   v-if="match.teamTwo.players[i]"
                   :name="match.teamTwo.players[i].name"
+                  :id="match.teamTwo.players[i]._id"
                   :avatar="match.teamTwo.players[i].avatar"
                   :elo="match.teamTwo.players[i].elo"
                   :rank="match.teamTwo.players[i].rank"
+                  :steam-url="match.teamTwo.players[i].steamUrl"
                 />
                 <SkeletonPlayerCard v-else />
               </div>
@@ -225,11 +279,13 @@
           </v-col> </v-row
       ></v-container>
     </v-row>
+    <ErrorMessage />
+    <SuccessMessage />
   </v-container>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 import axios from 'axios'
 import PlayerCard from '@/components/match/PlayerCard.vue'
 import SkeletonPlayerCard from '@/components/match/SkeletonPlayerCard.vue'
@@ -245,22 +301,45 @@ export default {
   data() {
     return {
       dialog: false,
+      countdown: new Date(),
       match: {}
     }
   },
   components: { PlayerCard, Timer, SkeletonPlayerCard, MapCard },
   computed: {
+    ...mapGetters(['user']),
+    playersMap() {
+      const map = this.match.players.reduce((map, player) => {
+        map[player._id] = player
+        return map
+      }, {})
+      return map
+    },
     status() {
       if (this.match.status === 'playerveto') {
-        return 'Spielerwahl'
+        return this.currentTurnName + ' wählt einen Spieler'
       }
-      if (this.match.status === 'mapveto') {
-        return 'pug8 bannt eine Map'
+      if (this.match.status === 'mapveto' && this.currentTurnName) {
+        return this.currentTurnName + ' bannt eine Map'
+      }
+      if (this.match.status === 'mapveto' && !this.currentTurnName) {
+        return 'Warmup'
       }
       if (this.match.status === 'active') {
-        return 'Aktiv'
+        return 'Warmup'
       }
       return 'Beendet'
+    },
+    currentTurnName() {
+      if (this.currentTurn === 2) {
+        return this.match.teamTwo.captain.name
+      }
+
+      if (this.currentTurn === 1) {
+        return this.match.teamOne.captain.name
+      }
+
+      return ''
     },
     playersExcludingCaptains() {
       return this.match.players.filter(
@@ -301,26 +380,50 @@ export default {
       }
 
       return availablePlayers
+    },
+    isCaptain() {
+      if (
+        this.user._id === this.match.teamOne.captain._id ||
+        this.user._id === this.match.teamTwo.captain._id
+      ) {
+        return true
+      }
+      return false
+    },
+    currentTurn() {
+      // return 1 for team one
+      // return 2 for team two
+      // return 0 for no turn
+      if (this.match.status === 'playerveto') {
+        if (
+          this.match.teamOne.players.length > this.match.teamTwo.players.length
+        ) {
+          return 2
+        } else {
+          return 1
+        }
+      }
+
+      if (this.match.status === 'mapveto' && !this.match.map) {
+        if (
+          this.match.mapVeto.teamOneBans.length >
+          this.match.mapVeto.teamTwoBans.length
+        ) {
+          return 2
+        } else {
+          return 1
+        }
+      }
+
+      return 0
     }
   },
   methods: {
-    //...mapActions([
-    //  'changeMyPassword',
-    //  'getProfile',
-    //  'addProfileData',
-    //  'saveProfile',
-    //  'unlinkTeamSpeak'
-    //]),
     copyText() {
       const input = this.$refs.serverip.$refs.input
       input.select()
       document.execCommand('copy')
       input.setSelectionRange(0, 0) // unselect
-    },
-    getFutureTime() {
-      let timeObject = new Date()
-      timeObject = new Date(timeObject.getTime() + 1000 * 30)
-      return timeObject
     },
     playersToIds(players) {
       const ids = []
@@ -332,6 +435,95 @@ export default {
         }
       }
       return ids
+    },
+    pickPlayer(userId) {
+      if (!isCaptain) {
+        return
+      }
+      this.$socket.client.emit('match-pick-player', {
+        userId,
+        matchId: this.matchId
+      })
+    },
+    banMap(mapKey) {
+      if (!isCaptain) {
+        return
+      }
+      this.$socket.client.emit('match-ban-map', {
+        mapKey,
+        matchId: this.matchId
+      })
+    }
+  },
+  sockets: {
+    MATCH_SET_MAP(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.map = data.map
+    },
+    MATCH_PICK_PLAYER(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      const player = this.playersMap[data.userId]
+      if (!player) {
+        return console.log('Invalid user id')
+      }
+
+      console.log('Following player got picked')
+      console.log(player)
+      console.log(data)
+      if (data.teamOne) {
+        this.match.teamOne.players.push(player)
+      }
+
+      if (!data.teamOne) {
+        this.match.teamTwo.players.push(player)
+      }
+    },
+    MATCH_BAN_MAP(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      if (data.teamOne) {
+        this.match.mapVeto.teamOneBans.push(data.mapKey)
+      }
+
+      if (!data.teamOne) {
+        this.match.mapVeto.teamTwoBans.push(data.mapKey)
+      }
+    },
+    MATCH_UPDATE_SCORE(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+      // data should look like this
+      // { teamOne: 2, teamTwo: 3 }
+    },
+    MATCH_CHANGE_STATUS(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.status = data.status
+    },
+    MATCH_SET_COUNTDOWN(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.countdown = new Date(data.countdown)
+    },
+    MATCH_SET_STATE(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match = data.match
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -340,6 +532,7 @@ export default {
       .then(function (response) {
         next((vm) => {
           vm.match = response.data
+          vm.matchId = to.params.matchId
         })
       })
       .catch(function (error) {
@@ -391,10 +584,6 @@ export default {
   height: 80px !important;
   border-radius: 8px;
 }
-.match-team-profile-wrapper {
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
 .match-status-wrapper {
   display: flex;
   justify-content: center;
@@ -445,24 +634,33 @@ export default {
   &.picked {
     filter: brightness(40%);
   }
-  &:not(.picked) {
-    &:hover {
-      outline: 2px solid $success !important;
-      cursor: pointer;
-      box-sizing: border-box !important;
+}
+
+.is-captain {
+  .map-card {
+    overflow: hidden;
+    &:not(.banned) {
+      &:hover {
+        outline: 2px solid $error !important;
+        cursor: pointer;
+        box-sizing: border-box !important;
+      }
+    }
+  }
+
+  .player-card {
+    &:not(.picked) {
+      &:hover {
+        outline: 2px solid $success !important;
+        cursor: pointer;
+        box-sizing: border-box !important;
+      }
     }
   }
 }
 
 .map-card {
   overflow: hidden;
-  &:not(.banned) {
-    &:hover {
-      outline: 2px solid $error !important;
-      cursor: pointer;
-      box-sizing: border-box !important;
-    }
-  }
 }
 
 .picking {
@@ -482,5 +680,35 @@ h2 {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
+}
+
+.map-card.banned {
+  animation: blink-error 1.5s;
+  animation-iteration-count: 1;
+  outline: 2px solid transparent;
+}
+
+.map-card.picked {
+  animation: blink-success 1s;
+  animation-iteration-count: 3;
+  outline: 2px solid transparent;
+}
+
+.player-card.picked {
+  animation: blink-success 1.5s;
+  animation-iteration-count: 1;
+  outline: 2px solid transparent;
+}
+
+@keyframes blink-error {
+  50% {
+    outline: 2px solid $error;
+  }
+}
+
+@keyframes blink-success {
+  50% {
+    outline: 2px solid $success;
+  }
 }
 </style>

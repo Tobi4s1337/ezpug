@@ -151,6 +151,10 @@ export default {
         type: 'kicked'
       }
     },
+    PRIVATE_QUEUE_MATCH(data) {
+      // found a match
+      this.reset()
+    },
     PRIVATE_QUEUE_TIMEOUT(data) {
       this.reset()
       this.error = {

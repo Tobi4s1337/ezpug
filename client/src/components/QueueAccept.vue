@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
 import Timer from '@/components/common/Timer.vue'
 
 export default {

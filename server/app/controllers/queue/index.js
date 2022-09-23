@@ -99,6 +99,9 @@ class Queue {
       this._timeout = null
 
       logger.info('All players accepted, creating match...')
+      for (const player of this._possiblePlayers) {
+        emitPrivateEvent(player, 'QUEUE_MATCH', {})
+      }
       this.createMatch()
     }
 

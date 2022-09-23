@@ -6,7 +6,7 @@
       :class="{ small: small }"
     >
       <v-list-item-content>
-        <v-list-item-title class="player-name">
+        <v-list-item-title class="player-name" :class="{ 'is-user': isUser }">
           {{ name }} #{{ rank }} {{ captain ? '👑' : '' }}
         </v-list-item-title>
         <v-list-item-subtitle class="user-status"> </v-list-item-subtitle>
@@ -50,9 +50,6 @@
       >
         <v-icon dark> mdi-account-plus </v-icon></v-btn
       >
-      <v-btn v-if="isFriend" target="_blank">
-        <v-icon dark> mdi-account-plus </v-icon></v-btn
-      >
       <v-btn
         v-if="isReceivedRequest"
         color="white"
@@ -69,7 +66,7 @@
         target="_blank"
         @click="cancelFriendRequest({ id: friendRequest._id })"
       >
-        <v-icon dark> mdi-account-plus </v-icon></v-btn
+        <v-icon dark> mdi-account-minus </v-icon></v-btn
       >
     </v-card-actions>
   </v-card>
@@ -251,5 +248,8 @@ export default {
       margin-bottom: 8px !important;
     }
   }
+}
+.is-user {
+  color: $success;
 }
 </style>
