@@ -47,7 +47,7 @@ class MatchHandler {
         const match = new Match({ type, players })
         await match.initMatch()
 
-        this._matches[match.matchId] = match;
+        this._matches[match.matchId] = match
 
         resolve(match.matchId)
       } catch (err) {
@@ -55,6 +55,26 @@ class MatchHandler {
         reject(err)
       }
     })
+  }
+
+  handleDathostRoundRequest(data) {
+    for (let [matchId, match] of this._matches) {
+      if (!match._dathostMatchId === data.id) {
+        break
+      }
+
+      match.handleDathostRoundRequest(data)
+    }
+  }
+
+  handleDathostMatchRequest(data) {
+    for (let [matchId, match] of Object.entries(this._matches)) {
+      if (!match._dathostMatchId === data.id) {
+        break
+      }
+
+      match.handleDathostMatchRequest(data)
+    }
   }
 
   cancelMatch() {}

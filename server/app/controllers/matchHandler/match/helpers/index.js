@@ -8,6 +8,7 @@ const { getActiveMatches } = require('./getActiveMatches')
 const { getTimeLeft } = require('./getTimeLeft')
 const { idToProfile } = require('./idToProfile')
 const { getFutureTime } = require('./getFutureTime')
+const { updateUserStats } = require('./updateUserStats')
 
 module.exports = {
   createMatchInDb,
@@ -19,5 +20,6 @@ module.exports = {
   getActiveMatches,
   getTimeLeft,
   idToProfile,
-  getFutureTime
+  getFutureTime,
+  updateUserStats
 }

@@ -5,7 +5,7 @@
     absolute
     mini-variant-width="78"
     class="text-left friendlist"
-    stateless="true"
+    :stateless="true"
     :mini-variant="collapsed"
     @mouseover.native="hover = true"
     @mouseleave.native="hover = false"
@@ -76,8 +76,8 @@
               :avatar="friend.avatar"
               steam-url="props.item.steamUrl"
               :id="friend._id"
-              rank="32"
-              elo="1337"
+              :rank="32"
+              :elo="1337"
               :status="friend.status"
             />
           </v-list>
@@ -97,8 +97,8 @@
               :avatar="friend.avatar"
               steam-url="props.item.steamUrl"
               :id="friend._id"
-              rank="32"
-              elo="1337"
+              :rank="32"
+              :elo="1337"
               :status="friend.status"
             />
           </v-list>
@@ -126,8 +126,8 @@
               :avatar="request.requester.avatar"
               steam-url="props.item.steamUrl"
               :id="request.requester._id"
-              rank="32"
-              elo="1337"
+              :rank="32"
+              :elo="1337"
               :status="{ hidden: true }"
             />
           </v-list>
@@ -147,8 +147,8 @@
               @context-hidden="contextMenuOpen = false"
               :avatar="request.recipient.avatar"
               :id="request.recipient._id"
-              rank="32"
-              elo="1337"
+              :rank="32"
+              :elo="1337"
               :status="{ hidden: true }"
             />
           </v-list>
@@ -181,8 +181,8 @@
               :avatar="friend.avatar"
               steam-url="props.item.steamUrl"
               id="props.item._id"
-              rank="32"
-              elo="1337"
+              :rank="32"
+              :elo="1337"
               :status="friend.status"
             />
           </v-list>

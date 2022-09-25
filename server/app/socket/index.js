@@ -96,6 +96,10 @@ io.on('connection', (socket) => {
     socket.join(`match-${matchId}`)
   })
 
+  socket.on('leave-match', (matchId) => {
+    socket.leave(`match-${matchId}`)
+  })
+
   socket.on('queue-message', async (msg) => {
     try {
       const queue = await Queue.getInstance()
@@ -119,8 +123,6 @@ io.on('connection', (socket) => {
 
       if (!matchHandler._matches[msg.data.matchId]) {
         return logger.warn('No match found')
-
-        console.log(matchHandler._matches)
       }
 
       matchHandler._matches[msg.data.matchId].onMessage({

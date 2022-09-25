@@ -2,7 +2,6 @@
   <v-card class="map-card">
     <v-img
       :class="{
-        small: small,
         'team-one-banned': teamOneBanned,
         'team-two-banned': teamTwoBanned
       }"
@@ -37,6 +36,7 @@ export default {
   height: 78px;
   overflow: hidden;
 }
+
 .map-name {
   position: absolute;
   bottom: -2px;

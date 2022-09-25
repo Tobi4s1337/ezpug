@@ -3,7 +3,8 @@ const router = express.Router()
 
 const {
   handleWhatsAppRequest,
-  handleDatHostRequest
+  handleDathostRoundRequest,
+  handleDathostMatchRequest
 } = require('../controllers/webhook')
 
 /*
@@ -18,6 +19,8 @@ router.post('/whatsApp', handleWhatsAppRequest)
 /*
  * DatHost webhook
  */
-router.post('/datHost/', handleDatHostRequest)
+router.post('/dathost-round/:matchId', handleDathostRoundRequest)
+
+router.post('/dathost-match/:matchId', handleDathostMatchRequest)
 
 module.exports = router

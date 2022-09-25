@@ -92,6 +92,56 @@ const UserSchema = new mongoose.Schema(
     whatsAppCode: {
       type: String
     },
+    stats: {
+      elo: {
+        type: Number,
+        default: 200
+      },
+      matchesPlayed: {
+        type: Number,
+        default: 0
+      },
+      matchesWon: {
+        type: Number,
+        default: 0
+      },
+      totalKills: {
+        type: Number,
+        default: 0
+      },
+      totalDeaths: {
+        type: Number,
+        default: 0
+      },
+      recentResults: {
+        type: Array,
+        default: ['-', '-', '-', '-', '-']
+      }
+    },
+    matches: [
+      {
+        matchId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Match'
+        },
+        teamOne: {
+          type: Boolean,
+          default: false
+        },
+        map: {
+          key: String,
+          name: String
+        },
+        teamOneScore: {
+          type: Number,
+          default: 0
+        },
+        teamTwoScore: {
+          type: Number,
+          default: 0
+        }
+      }
+    ],
     status: {
       online: {
         type: Boolean,

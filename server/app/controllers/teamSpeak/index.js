@@ -229,7 +229,7 @@ class TeamSpeakHandler extends EventEmitter {
         channelOrder
       })
     } catch (err) {
-      console.log('Failed to create default channels', err)
+      //console.log('Failed to create default channels', err)
 
       // Channels already exist, now get each of them for future reference
       if (err.id === '771') {

@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import { Howl, Howler } from 'howler'
 import { mapActions, mapGetters } from 'vuex'
 import Timer from '@/components/common/Timer.vue'
 import QueueAccept from '@/components/QueueAccept.vue'
@@ -88,7 +89,8 @@ export default {
       accepted: false,
       acceptPhase: false,
       possiblePlayers: [],
-      error: null
+      error: null,
+      sound: null
     }
   },
   components: { Timer, QueueAccept, QueueError },
@@ -104,10 +106,27 @@ export default {
       this.accepted = false
       this.acceptPhase = false
       this.possiblePlayers = []
+      if (this.sound) {
+        this.sound.stop()
+      }
+      this.sound = null
     },
     accept() {
       this.accepted = true
       this.$socket.client.emit('queue-message', { event: 'ready' })
+
+      if (this.sound) {
+        this.sound.fade(1, 0, 1000)
+      }
+      this.sound = null
+    },
+    playAcceptSound() {
+      this.sound = new Howl({
+        src: ['/sounds/retro.mp3'],
+        loop: true
+      })
+
+      this.sound.play()
     }
   },
   computed: {
@@ -139,6 +158,7 @@ export default {
       if (data && data.players) {
         this.possiblePlayers = data.players
       }
+      this.playAcceptSound()
     },
     PRIVATE_QUEUE_READY_UPDATE(data) {
       if (data && data.players) {

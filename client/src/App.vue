@@ -22,12 +22,17 @@
         "
       >
         <transition name="fade" mode="out-in">
-          <router-view />
+          <router-view :key="$route.path" />
         </transition>
       </v-container>
     </v-main>
 
     <Queue v-if="user" />
+    <MatchResult
+      v-if="matchResult"
+      :match-result="matchResult"
+      @close="closeMatchResult()"
+    />
   </v-app>
 </template>
 
@@ -39,6 +44,7 @@ import NavigationSidebar from '@/components/core/NavigationSidebar.vue'
 import TeamspeakDialog from '@/components/TeamspeakDialog.vue'
 import NameDialog from '@/components/NameDialog.vue'
 import Queue from '@/components/Queue.vue'
+import MatchResult from '@/components/MatchResult.vue'
 
 export default {
   name: 'App',
@@ -81,13 +87,19 @@ export default {
       ]
     }
   },
+  data() {
+    return {
+      matchResult: null
+    }
+  },
   components: {
     Toolbar,
     Loading,
     NavigationSidebar,
     TeamspeakDialog,
     Queue,
-    NameDialog
+    NameDialog,
+    MatchResult
   },
   computed: {
     ...mapGetters(['user', 'profile', 'showLoading']),
@@ -96,7 +108,10 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getProfile'])
+    ...mapActions(['getProfile']),
+    closeMatchResult() {
+      this.matchResult = null
+    }
   },
   sockets: {
     connect() {
@@ -113,10 +128,17 @@ export default {
       }
     },
     PRIVATE_MATCH_START(data) {
+      console.log('Private match start')
+      console.log(data)
       if (data.matchId) {
         console.log(this.$route)
-        this.$router.push('/match/' + data.matchId)
+        this.$router.push({ path: '/match/' + data.matchId })
       }
+    },
+    PRIVATE_MATCH_RESULT(data) {
+      console.log('match result event')
+      console.log(data)
+      this.matchResult = data
     }
   }
 }

@@ -182,10 +182,10 @@
                 v-for="(map, index) in match.mapVeto.pool.maps"
                 :key="map.key"
                 :class="{ 'mb-3': index < 6 }"
+                @click="banMap(map.key)"
               >
                 <MapCard
                   :map="map"
-                  small
                   :team-one-banned="match.mapVeto.teamOneBans.includes(map.key)"
                   :team-two-banned="match.mapVeto.teamTwoBans.includes(map.key)"
                   class="map-card"
@@ -193,7 +193,6 @@
                     banned: !mapsToBan.includes(map.key),
                     picked: match.map && match.map.key === map.key
                   }"
-                  @click="banMap(map.key)"
                 />
               </div>
             </v-sheet>
@@ -202,7 +201,11 @@
             cols="12"
             sm="4"
             class="ma-0 pt-0 pb-0"
-            v-else-if="match.status === 'active'"
+            v-else-if="
+              match.status === 'active' ||
+              match.status === 'finished' ||
+              match.status === 'cancelled'
+            "
           >
             <v-card class="map-card-large mb-3">
               <v-img
@@ -210,7 +213,9 @@
                 aspect-ratio="1.7"
                 height="148"
               ></v-img>
-              <div class="match-score">00 : 00</div>
+              <div class="match-score">
+                {{ teamOneScore }} : {{ teamTwoScore }}
+              </div>
             </v-card>
             <v-sheet
               style="height: calc(100% - 162px)"
@@ -221,11 +226,11 @@
               color="brightBackground"
             >
               <div class="match-actions-wrapper">
-                <div>
+                <div v-if="match.server">
                   <div class="mb-2">Zum Verbinden mithilfe der Konsole</div>
                   <v-text-field
-                    style="width: 254px; margin: auto"
-                    value="connect 127.0.0.1:2567"
+                    style="width: 333px; margin: auto"
+                    :value="`connect ${match.server.connect}`"
                     readonly
                     dense
                     outlined
@@ -233,7 +238,19 @@
                     ref="serverip"
                     @click:append-outer="copyText"
                   ></v-text-field>
-                  <v-btn color="success">Verbinden</v-btn>
+                  <v-btn
+                    color="success"
+                    :href="`steam://connect/${match.server.connect}`"
+                    >Verbinden</v-btn
+                  >
+                </div>
+                <div v-else>
+                  <Lottie
+                    style="max-width: 210px"
+                    :options="defaultOptions"
+                    autoplay
+                    v-on:animCreated="handleAnimation"
+                  />
                 </div>
                 <v-divider class="mt-5 mb-5"></v-divider>
                 <div>
@@ -291,6 +308,10 @@ import PlayerCard from '@/components/match/PlayerCard.vue'
 import SkeletonPlayerCard from '@/components/match/SkeletonPlayerCard.vue'
 import Timer from '@/components/common/Timer'
 import MapCard from '@/components/match/MapCard.vue'
+
+import Lottie from 'vue-lottie'
+import * as animationData from '@/assets/server.json'
+
 export default {
   metaInfo() {
     return {
@@ -302,12 +323,26 @@ export default {
     return {
       dialog: false,
       countdown: new Date(),
-      match: {}
+      match: {},
+      defaultOptions: { animationData: animationData.default },
+      animationSpeed: 1
     }
   },
-  components: { PlayerCard, Timer, SkeletonPlayerCard, MapCard },
+  components: { PlayerCard, Timer, SkeletonPlayerCard, MapCard, Lottie },
   computed: {
     ...mapGetters(['user']),
+    teamOneScore() {
+      if (this.match.teamOne.roundsWon < 10) {
+        return '0' + this.match.teamOne.roundsWon
+      }
+      return this.match.teamOne.roundsWon
+    },
+    teamTwoScore() {
+      if (this.match.teamTwo.roundsWon < 10) {
+        return '0' + this.match.teamTwo.roundsWon
+      }
+      return this.match.teamTwo.roundsWon
+    },
     playersMap() {
       const map = this.match.players.reduce((map, player) => {
         map[player._id] = player
@@ -328,6 +363,7 @@ export default {
       if (this.match.status === 'active') {
         return 'Warmup'
       }
+
       return 'Beendet'
     },
     currentTurnName() {
@@ -383,8 +419,9 @@ export default {
     },
     isCaptain() {
       if (
-        this.user._id === this.match.teamOne.captain._id ||
-        this.user._id === this.match.teamTwo.captain._id
+        this.user &&
+        (this.user._id === this.match.teamOne.captain._id ||
+          this.user._id === this.match.teamTwo.captain._id)
       ) {
         return true
       }
@@ -419,6 +456,9 @@ export default {
     }
   },
   methods: {
+    handleAnimation: function (anim) {
+      this.anim = anim
+    },
     copyText() {
       const input = this.$refs.serverip.$refs.input
       input.select()
@@ -471,6 +511,22 @@ export default {
     }
   },
   sockets: {
+    MATCH_SCORE_UPDATE(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.teamOne.roundsWon = data.teamOne
+      this.match.teamTwo.roundsWon = data.teamTwo
+      this.match.stats = data.stats
+    },
+    MATCH_SERVER_AVAILABLE(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.server = data.server
+    },
     MATCH_SET_MAP(data) {
       if (data.matchId !== this.matchId) {
         return
@@ -570,26 +626,26 @@ export default {
       this.countdown = new Date(data.countdown)
     }
   },
-  beforeRouteEnter(to, from, next) {
-    axios
-      .get('/match/' + to.params.matchId)
-      .then(function (response) {
-        next((vm) => {
-          console.log('After axios call')
-          vm.match = response.data
-          vm.matchId = to.params.matchId
-        })
-      })
-      .catch(function (error) {
-        next()
-        console.log(error)
-      })
-  },
   async mounted() {
     this.$nextTick(() => {
       // dumb hack
+      this.matchId = this.$route.params.matchId
+      axios
+        .get('/match/' + this.matchId)
+        .then((response) => {
+          console.log('After axios call')
+          this.match = response.data
+          this.matchId = this.$route.params.matchId
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+
       setTimeout(() => {
+        console.log('after mounted')
         this.getMatchState()
+        console.log(this.$route.params.matchId)
+        console.log(this)
         this.$socket.client.emit('join-match', this.$route.params.matchId)
         console.log('after requesting match state via socket')
       }, 1000)
@@ -761,6 +817,11 @@ h2 {
 @keyframes blink-success {
   50% {
     outline: 2px solid $success;
+  }
+}
+.banned {
+  .map-name {
+    filter: brightness(70%);
   }
 }
 </style>

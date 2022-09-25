@@ -42,7 +42,7 @@
         <v-icon dark> mdi-account-circle </v-icon></v-btn
       >
       <v-btn
-        v-if="!isFriend && !isReceivedRequest && !isSentRequest && !isUser"
+        v-if="user && !isFriend && !isReceivedRequest && !isSentRequest && !isUser"
         color="white"
         icon
         @click="createFriendRequest({ recipient: id })"
@@ -101,6 +101,9 @@ export default {
       'user'
     ]),
     isUser() {
+      if (!this.user) {
+        return false
+      }
       return this.id === this.user._id
     },
     isFriend() {

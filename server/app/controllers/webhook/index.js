@@ -1,7 +1,9 @@
-const { handleDatHostRequest } = require('./handleDatHostRequest')
+const { handleDathostRoundRequest } = require('./handleDathostRoundRequest')
 const { handleWhatsAppRequest } = require('./handleWhatsAppRequest')
+const { handleDathostMatchRequest } = require('./handleDathostMatchRequest')
 
 module.exports = {
-  handleDatHostRequest,
+  handleDathostRoundRequest,
+  handleDathostMatchRequest,
   handleWhatsAppRequest
 }

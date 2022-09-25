@@ -9,10 +9,10 @@ const matchSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['playerveto', 'mapveto', 'active', 'finished'],
+      enum: ['playerveto', 'mapveto', 'active', 'finished', 'cancelled'],
       default: 'playerveto'
     },
-    gameServer: String,
+    server: Object,
     gotv: String,
     mapVeto: {
       pool: Object,
