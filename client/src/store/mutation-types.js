@@ -25,6 +25,9 @@ export const ADD_PROFILE_DATA = 'ADD_PROFILE_DATA'
 // Admin - Users
 export const USERS = 'USERS'
 export const TOTAL_USERS = 'TOTAL_USERS'
+// Admin - Drops
+export const DROPS = 'DROPS'
+export const TOTAL_DROPS = 'TOTAL_DROPS'
 // Friends
 export const FRIENDS = 'FRIENDS'
 export const SENT_FRIEND_REQUESTS = 'SENT_FRIEND_REQUESTS'

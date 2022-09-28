@@ -139,6 +139,14 @@ export default {
       console.log('match result event')
       console.log(data)
       this.matchResult = data
+    },
+    PUBLIC_DROP(data) {
+      this.$toast.open({
+        type: 'success',
+        position: 'bottom-right',
+        duration: 6500,
+        message: `Der Spieler ${data.username} hat einen Drop erhalten 🎉: ${data.dropName}`
+      })
     }
   }
 }
@@ -153,6 +161,43 @@ export default {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+#app.theme--dark.v-application .theme--dark.v-data-table {
+  background-color: $bright-background !important;
+}
+
+.theme--dark.v-data-table
+  > .v-data-table__wrapper
+  > table
+  > tbody
+  > tr:not(:last-child)
+  > td:last-child,
+.theme--dark.v-data-table
+  > .v-data-table__wrapper
+  > table
+  > tbody
+  > tr:not(:last-child)
+  > th:last-child,
+.theme--dark.v-data-table
+  > .v-data-table__wrapper
+  > table
+  > tbody
+  > tr:not(:last-child)
+  > td:not(.v-data-table__mobile-row),
+.theme--dark.v-data-table
+  > .v-data-table__wrapper
+  > table
+  > tbody
+  > tr:not(:last-child)
+  > th:not(.v-data-table__mobile-row),
+.theme--dark.v-data-table
+  > .v-data-table__wrapper
+  > table
+  > thead
+  > tr:last-child
+  > th {
+  border-color: $border-color-filled !important;
 }
 
 #app.theme--dark.v-application {
@@ -180,6 +225,10 @@ export default {
     }
   }
 
+  .theme--dark.v-app-bar.v-toolbar.v-sheet {
+    background-color: $bright-background;
+  }
+
   .v-card.theme--dark.v-card {
     background-color: $bright-background;
     border: thin solid $border-color;
@@ -189,5 +238,13 @@ export default {
   .v-text-field--filled > .v-input__control > .v-input__slot {
     background-color: $bright-background;
   }
+}
+.v-toast__text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+}
+.v-toast__item--success {
+  background-color: $success !important;
+  background: $success !important;
 }
 </style>

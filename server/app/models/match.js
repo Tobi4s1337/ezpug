@@ -25,7 +25,8 @@ const matchSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'User',
         autopopulate: {
-          select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
+          select:
+            '_id avatar name role steamId teamSpeakId csgoId steamUrl stats'
         }
       }
     ],
@@ -37,7 +38,8 @@ const matchSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'User',
           autopopulate: {
-            select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
+            select:
+              '_id avatar name role steamId teamSpeakId csgoId steamUrl stats'
           }
         }
       ],
@@ -45,7 +47,8 @@ const matchSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'User',
         autopopulate: {
-          select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
+          select:
+            '_id avatar name role steamId teamSpeakId csgoId steamUrl stats'
         }
       }
     },
@@ -57,7 +60,8 @@ const matchSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'User',
           autopopulate: {
-            select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
+            select:
+              '_id avatar name role steamId teamSpeakId csgoId steamUrl stats'
           }
         }
       ],
@@ -65,19 +69,21 @@ const matchSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'User',
         autopopulate: {
-          select: '_id avatar name role steamId teamSpeakId csgoId steamUrl'
+          select:
+            '_id avatar name role steamId teamSpeakId csgoId steamUrl stats'
         }
       }
     },
     demoLink: String,
-    stats: Object,
+    stats: [],
     teamSpeak: {
       mainCid: String,
       statusCid: String,
       talkCid: String,
       teamOneCid: String,
       teamTwoCid: String
-    }
+    },
+    drops: [{ type: Schema.Types.ObjectId, ref: 'Drop' }]
   },
   { timestamps: true }
 )

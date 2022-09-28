@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid class="users-wrapper">
     <v-data-table
       :loading="dataTableLoading"
       :no-data-text="$t('dataTable.NO_DATA')"
@@ -267,7 +267,7 @@
     </v-data-table>
     <ErrorMessage />
     <SuccessMessage />
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -489,5 +489,9 @@ export default {
 <style>
 table.v-table {
   max-width: none;
+}
+.users-wrapper {
+  margin-top: 14px;
+  max-width: 1344px;
 }
 </style>

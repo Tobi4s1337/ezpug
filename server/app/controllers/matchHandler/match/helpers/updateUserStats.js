@@ -1,13 +1,16 @@
-const User = require('../../../../models/match')
+const User = require('../../../../models/user')
 const { emitPrivateEvent } = require('../../../../socket')
 
 const getUserStats = ({ userId }) => {
+  console.log('ukuru')
   return new Promise((resolve, reject) => {
     User.findById(userId, (err, foundUser) => {
       if (err || !foundUser) {
-        return reject()
+        console.log('nope, not found', userId)
+        console.log(err)
+        return reject(err)
       }
-
+      console.log('go user stats')
       resolve(foundUser.stats)
     })
   })
@@ -25,7 +28,8 @@ const updateUserStats = ({
   return new Promise(async (resolve, reject) => {
     try {
       const existingStats = await getUserStats({ userId })
-
+      console.log('nani')
+      console.log(existingStats)
       let victory = false
 
       if (
@@ -52,8 +56,8 @@ const updateUserStats = ({
       const matchesWon = victory
         ? existingStats.matchesWon + 1
         : existingStats.matchesWon
-      const elo = victory ? existingsStats.elo + 12 : existingStats.elo - 10
-      const matchesPlayed = existingsStats.matchesPlayed++
+      const elo = victory ? existingStats.elo + 12 : existingStats.elo - 10
+      const matchesPlayed = existingStats.matchesPlayed++
 
       const match = {
         matchId,
@@ -62,12 +66,12 @@ const updateUserStats = ({
         teamTwoScore,
         teamOne
       }
-
+      console.log('uwuw')
       User.findByIdAndUpdate(
         userId,
         {
           $set: {
-            stats: { totalKills, totalDeaths, elo, matchesPlayed, matchesWon },
+            stats: { totalKills, totalDeaths, elo, matchesPlayed, matchesWon, recentResults },
             $push: { matches: match }
           }
         },
@@ -76,6 +80,7 @@ const updateUserStats = ({
             reject(err)
           }
 
+          console.log('wwwww')
           emitPrivateEvent(userId, 'MATCH_RESULT', {
             victory,
             oldElo: existingStats.elo,
@@ -86,6 +91,7 @@ const updateUserStats = ({
         }
       )
     } catch (err) {
+      console.log(err)
       reject(err)
     }
   })

@@ -15,6 +15,7 @@ const getItems = async (req = {}, model = {}, query = {}) => {
       if (err) {
         return reject(buildErrObject(422, err.message))
       }
+      console.log(items)
       resolve(cleanPaginationID(items))
     })
   })

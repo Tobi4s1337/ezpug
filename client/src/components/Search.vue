@@ -42,8 +42,8 @@
             :steam-url="props.item.steamUrl"
             :id="props.item._id"
             rank="32"
-            elo="1337"
-            :status="{ online: true, inQueue: true, inMatch: false }"
+            :elo="props.item.stats ? props.item.stats.elo : 0"
+            :status="props.item.status"
           />
         </v-col>
       </template>

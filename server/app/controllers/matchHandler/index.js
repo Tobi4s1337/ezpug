@@ -23,11 +23,11 @@ class MatchHandler {
   async init() {
     try {
       // load existing active matches
-      const matches = await getActiveMatches()
+      //const matches = await getActiveMatches()
 
-      for (const match of matches) {
-        this.createMatch({ matchId: match._id })
-      }
+      //for (const match of matches) {
+      //  this.createMatch({ matchId: match._id })
+      //}
 
       return this
     } catch (err) {
@@ -58,7 +58,7 @@ class MatchHandler {
   }
 
   handleDathostRoundRequest(data) {
-    for (let [matchId, match] of this._matches) {
+    for (let [matchId, match] of Object.entries(this._matches)) {
       if (!match._dathostMatchId === data.id) {
         break
       }

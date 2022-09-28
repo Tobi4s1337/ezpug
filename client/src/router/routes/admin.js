@@ -9,5 +9,16 @@ export default [
       import(
         /* webpackChunkName: "admin-users" */ '@/components/AdminUsers.vue'
       )
+  },
+  {
+    path: '/admin/drops',
+    name: 'admin-drops',
+    meta: {
+      requiresAuth: true
+    },
+    component: () =>
+      import(
+        /* webpackChunkName: "admin-drops" */ '@/components/AdminDrops.vue'
+      )
   }
 ]

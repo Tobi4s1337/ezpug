@@ -8,7 +8,7 @@ const { buildErrObject } = require('../../../middleware/utils')
 const getFriendRequestsForUser = (recipient) => {
   return new Promise((resolve, reject) => {
     FriendRequest.find({ recipient })
-      .populate('requester', 'name avatar')
+      .populate('requester', 'name avatar stats')
       .exec((err, foundRequests) => {
         if (err) {
           reject(buildErrObject(422, err))

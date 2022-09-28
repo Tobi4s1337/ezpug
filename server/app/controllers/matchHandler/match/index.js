@@ -30,7 +30,9 @@ const {
   updateServer,
   deleteServer,
   createMatch,
-  generateGSLT
+  generateGSLT,
+  downloadDemo,
+  stopServer
 } = require('./dathost')
 
 function containsAnyLetter(str) {
@@ -79,7 +81,7 @@ class Match {
       captain: null
     }
     this._demoLink = ''
-    this._stats = {}
+    this._stats = []
     this._teamSpeak = {
       mainCid: '',
       statusCid: '',
@@ -225,10 +227,8 @@ class Match {
 
   async updatePlayersStatus() {
     try {
-      console.log(this)
       let status = {
         active: true,
-        isTeamOne: false,
         status: this._status,
         score: {
           teamOne: this._teamOne.roundsWon,
@@ -248,8 +248,9 @@ class Match {
       }
 
       if (this._status === 'finished') {
+        const players = playersToIds(this._players)
         status.active = false
-        score = {
+        status.score = {
           teamOne: 0,
           teamTwo: 0
         }
@@ -280,7 +281,8 @@ class Match {
       }
 
       for (const player of teamTwoPlayers) {
-        status.isTeamOne = false
+        status.score.teamOne = this._teamTwo.roundsWon
+        status.score.teamTwo = this._teamOne.roundsWon
 
         await updateStatus(player, { match: status })
       }
@@ -295,7 +297,7 @@ class Match {
         event: 'CHANGE_STATUS',
         data: { matchId: this._matchId, status: 'active' }
       })
-      this._countdown = getFutureTime({ timeAdded: 5 * 60 * 1000 })
+      this._countdown = getFutureTime({ timeAdded: 10 * 60 * 1000 }) // 10 minutes, the time to connect
       this.emitEvent({
         event: 'SET_COUNTDOWN',
         data: { countdown: this._countdown, matchId: this._matchId }
@@ -679,43 +681,66 @@ class Match {
       matchId: this._matchId,
       status: this._status
     })
-    emitPrivateEvent({
-      event: 'MATCH_SET_COUNTDOWN',
-      data: { countdown: this._countdown, matchId: this._matchId }
+    emitPrivateEvent(userId, 'MATCH_SET_COUNTDOWN', {
+      countdown: this._countdown,
+      matchId: this._matchId
+    })
+    emitPrivateEvent(userId, 'MATCH_SCORE_UPDATE', {
+      teamOne: this._teamOne.roundsWon,
+      teamTwo: this._teamTwo.roundsWon,
+      matchId: this._matchId,
+      stats: this._stats
     })
   }
 
   handleDathostMatchRequest(data) {
-    if (data.finished && data.cancel_reason) {
-      this.endMatch({ stats: {}, cancelled: true })
+    logger.info('handleDathostMatchRequest()')
+    console.log(data)
+    if (data.cancel_reason) {
+      return this.endMatch({ stats: {}, cancelled: true })
     }
 
-    this.endMatch({ stats: data, cancelled: false })
+    if (data.finished) {
+      this.endMatch({ stats: data, cancelled: false })
+    }
   }
 
   handleDathostRoundRequest(data) {
+    logger.info('handleDathostRoundRequest()')
     console.log(data)
     if (!data.rounds_played || data.rounds_played === 0) {
-      return
-    }
-
-    if (
-      this._teamOne.roundsWon === data.team1_stats.score &&
-      this._teamTwo.roundsWon === data.team2_stats.score
-    ) {
-      return
+      return logger.warn('Not really started yet')
     }
 
     this._teamOne.roundsWon = data.team1_stats.score
     this._teamTwo.roundsWon = data.team2_stats.score
     this._stats = data.player_stats
 
+    if (data.rounds_played === 1) {
+      this._countdown = getFutureTime({ timeAdded: 0 })
+
+      this.emitEvent({
+        event: 'SET_COUNTDOWN',
+        data: { countdown: this._countdown, matchId: this._matchId }
+      })
+    }
+
     this.updatePlayersStatus()
-    this.emitEvent('SCORE_UPDATE', {
+    this.updateTeamSpeakStatus()
+    console.log('Do score update', {
       teamOne: this._teamOne.roundsWon,
       teamTwo: this._teamTwo.roundsWon,
       stats: this._stats,
       matchId: this._matchId
+    })
+    this.emitEvent({
+      event: 'SCORE_UPDATE',
+      data: {
+        teamOne: this._teamOne.roundsWon,
+        teamTwo: this._teamTwo.roundsWon,
+        stats: this._stats,
+        matchId: this._matchId
+      }
     })
   }
 
@@ -787,7 +812,7 @@ class Match {
     }
 
     return {
-      connect_time: 60, // 600
+      connect_time: 600,
       enable_knife_round: true,
       enable_playwin: false,
       game_server_id: this._dathostServerId,
@@ -798,8 +823,10 @@ class Match {
         process.env.BASE_URL + '/webhook/dathost-match/' + this._matchId,
       team1_name: this._teamOne.name,
       team2_name: this._teamTwo.name,
-      team1_steam_ids: teamOne,
-      team2_steam_ids: teamTwo,
+      //team1_steam_ids: teamOne,
+      //team2_steam_ids: teamTwo,
+      team1_steam_ids: ['STEAM_1:1:105363156'],
+      team2_steam_ids: ['STEAM_1:0:487708863'],
       enable_pause: true,
       wait_for_spectators: false,
       warmup_time: 15
@@ -827,19 +854,18 @@ class Match {
     }
   }
 
-  handlePlayerStats({ stats, teamOneScore, teamTwoScore }) {
-    playerStatsMap = stats.reduce(function (map, player) {
-      map[player['steam_id']] = player.val
-      return map
-    }, {})
-
-    let teamOnePlayers = this._teamOne.players
-    teamOnePlayers.push(this._teamOne.captain)
-    for (const player of this._teamOne.players) {
-      updateUserStats({
-        userId: player._id,
-        stats: playerStatsMap[player.csgoId]
-          ? playerStatsMap[player.csgoId]
+  async handlePlayerStats({ stats, teamOneScore, teamTwoScore }) {
+    try {
+      const playerStatsMap = stats.reduce((map, player) => {
+        map[player.steam_id] = player
+        return map
+      }, {})
+      console.log('Hi')
+      console.log(playerStatsMap)
+      await updateUserStats({
+        userId: this._teamOne.captain._id,
+        stats: playerStatsMap[this._teamOne.captain.csgoId]
+          ? playerStatsMap[this._teamOne.captain.csgoId]
           : {},
         teamOne: true,
         teamOneScore,
@@ -847,15 +873,25 @@ class Match {
         matchId: this._matchId,
         map: this._map
       })
-    }
+      console.log('whooo')
+      for (const player of this._teamOne.players) {
+        await updateUserStats({
+          userId: player._id,
+          stats: playerStatsMap[player.csgoId]
+            ? playerStatsMap[player.csgoId]
+            : {},
+          teamOne: true,
+          teamOneScore,
+          teamTwoScore,
+          matchId: this._matchId,
+          map: this._map
+        })
+      }
 
-    let teamTwoPlayers = this._teamTwo.players
-    teamTwoPlayers.push(this._teamTwo.captain)
-    for (const player of this._teamTwo.players) {
-      updateUserStats({
-        userId: player._id,
-        stats: playerStatsMap[player.csgoId]
-          ? playerStatsMap[player.csgoId]
+      await updateUserStats({
+        userId: this._teamTwo.captain._id,
+        stats: playerStatsMap[this._teamTwo.captain.csgoId]
+          ? playerStatsMap[this._teamTwo.captain.csgoId]
           : {},
         teamOne: false,
         teamOneScore,
@@ -863,14 +899,35 @@ class Match {
         matchId: this._matchId,
         map: this._map
       })
+
+      for (const player of this._teamTwo.players) {
+        await updateUserStats({
+          userId: player._id,
+          stats: playerStatsMap[player.csgoId]
+            ? playerStatsMap[player.csgoId]
+            : {},
+          teamOne: false,
+          teamOneScore,
+          teamTwoScore,
+          matchId: this._matchId,
+          map: this._map
+        })
+      }
+    } catch (err) {
+      logger.error('Failed to update player stats', err)
     }
   }
 
-  cancelMatch() {
-    this.emitEvent({ event: 'CANCELLED', data: {} })
-    this._status = 'cancelled'
-    this.saveMatchState()
-    deleteServer({ serverId: this._dathostServerId })
+  async cancelMatch() {
+    try {
+      this.emitEvent({ event: 'CANCELLED', data: {} })
+      this._status = 'cancelled'
+      this.saveMatchState()
+      await stopServer({ serverId: this._dathostServerId })
+      await deleteServer({ serverId: this._dathostServerId })
+    } catch (err) {
+      console.log('Failed to cancel match', err)
+    }
   }
 
   async endMatch({ stats, cancelled }) {
@@ -897,6 +954,7 @@ class Match {
       logger.info('Moved users & Deleted channels')
 
       if (cancelled || !(stats && stats.team1_stats)) {
+        console.log('Cancelled:(')
         return this.cancelMatch()
       }
 
@@ -911,15 +969,28 @@ class Match {
       this._teamOne.roundsWon = stats.team1_stats.score
       this._teamTwo.roundsWon = stats.team2_stats.score
 
-      // update player status
-      // send players event with either win / lose
-      deleteServer({ serverId: this._dathostServerId })
+      // save demo (takes around 20 seconds for server to have demo ready)
+      setTimeout(async () => {
+        try {
+          await downloadDemo({
+            serverId: this._dathostServerId,
+            dathostMatchId: this._dathostMatchId,
+            matchId: this._matchId
+          })
+          await stopServer({ serverId: this._dathostServerId })
+          logger.info('Stopped server')
+          await deleteServer({ serverId: this._dathostServerId })
+          logger.info("removed server")
+          // here we should probably remove it from matches map of matchHandler
+        } catch (err) {
+          logger.error('Failed to save demo and delete server', err)
+        }
+      }, 30 * 1000)
+
       this.saveMatchState()
     } catch (err) {
       logger.error('Failed to end match', err)
     }
-
-    // save stats
   }
 
   get matchId() {
@@ -984,7 +1055,7 @@ class Match {
       teamSpeak: this._teamSpeak,
       timer: this._timeout ? getTimeLeft(this._timeout) : -1,
       server: this._server,
-      stats: this._stats
+      stats: this._stats ? this._stats : []
     }
   }
 

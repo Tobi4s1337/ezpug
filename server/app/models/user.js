@@ -95,7 +95,8 @@ const UserSchema = new mongoose.Schema(
     stats: {
       elo: {
         type: Number,
-        default: 200
+        default: 200,
+        required: true
       },
       matchesPlayed: {
         type: Number,
@@ -177,7 +178,8 @@ const UserSchema = new mongoose.Schema(
         map: {
           type: String,
           default: 'Unknown'
-        }
+        },
+        matchId: String
       },
       lastSeen: {
         type: Date,
@@ -186,7 +188,8 @@ const UserSchema = new mongoose.Schema(
       teamSpeak: {
         type: Boolean,
         default: false
-      }
+      },
+      drops: [{ type: Schema.Types.ObjectId, ref: 'Drop' }]
     }
   },
   {

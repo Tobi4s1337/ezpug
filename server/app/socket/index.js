@@ -70,7 +70,6 @@ module.exports = {
 
 const MatchHandler = require('../controllers/matchHandler')
 const Queue = require('../controllers/queue')
-
 // require events
 const { authenticate, disconnect, logout } = require('./events')
 

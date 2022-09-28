@@ -146,6 +146,8 @@ const mutations = {
     state.profile.phone = data.phone
     state.profile.whatsAppEnabled = data.whatsAppEnabled
     state.profile.avatar = data.avatar
+    state.profile.rank = data.rank
+    state.profile.stats = data.stats
   },
   [types.ADD_PROFILE_DATA](state, data) {
     switch (data.key) {
@@ -170,6 +172,11 @@ const mutations = {
       case 'whatsAppEnabled':
         state.profile.whatsAppEnabled = data.value
         break
+      case 'rank':
+        state.profile.rank = data.value
+        break
+      case 'stats':
+        state.profile.stats = data.value
       case 'avatar':
         state.profile.avatar = data.value
         break

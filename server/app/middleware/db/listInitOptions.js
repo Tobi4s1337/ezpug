@@ -23,6 +23,7 @@ const listInitOptions = (req = {}) => {
       const page = parseInt(req.query.page, 10) || 1
       const limit = parseInt(req.query.limit, 10) || 5
       const select = req.query.select ? req.query.select : false
+      console.log(select)
       const options = {
         sort: sortBy,
         lean: true,

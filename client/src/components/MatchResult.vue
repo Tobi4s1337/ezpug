@@ -27,6 +27,7 @@
 
       <v-card-text class="match-result match-result-text"
         ><Lottie
+          style="width: 180px"
           :options="defaultOptionsLose"
           autoplay
           v-on:animCreated="handleAnimation"

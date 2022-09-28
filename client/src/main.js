@@ -10,6 +10,11 @@ import { store } from '@/store'
 import VuetifyConfirm from 'vuetify-confirm'
 import VueSocketIOExt from 'vue-socket.io-extended'
 import { io } from 'socket.io-client'
+import VueMoment from 'vue-moment';
+import Moment from 'moment';
+import 'moment/locale/de';
+import VueToast from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
 
 const socket = io(process.env.VUE_APP_SOCKET_URL, {
   path: '/socket',
@@ -17,9 +22,10 @@ const socket = io(process.env.VUE_APP_SOCKET_URL, {
 })
 
 Vue.config.productionTip = false
+Vue.use(VueToast);
 Vue.use(VuetifyConfirm, { vuetify })
 Vue.use(VueSocketIOExt, socket, { store })
-
+Vue.use(VueMoment, { moment: Moment })
 const app = new Vue({
   vuetify,
   router,

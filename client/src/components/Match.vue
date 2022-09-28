@@ -37,8 +37,17 @@
             </v-col>
             <v-col cols="12" sm="4">
               <div class="match-status-wrapper">
-                <div class="match-timer">
+                <div
+                  class="match-timer"
+                  v-if="
+                    match.status !== 'finished' && match.status !== 'cancelled'
+                  "
+                >
                   <Timer :date="countdown" />
+                </div>
+                <div class="match-date" v-else>
+                  <h2>{{ match.createdAt | moment('HH:mm') }}</h2>
+                  {{ match.createdAt | moment('Do MMM') }}
                 </div>
                 <div class="match-status-text">{{ status }}</div>
               </div>
@@ -73,6 +82,7 @@
     </v-row>
     <v-row>
       <v-tabs
+        v-model="tab"
         background-color="brightBackground"
         width="100%"
         elevation="4"
@@ -81,12 +91,20 @@
         color="success"
         rounded
       >
-        <v-tab>MATCH LOBBY</v-tab>
-        <v-tab disabled>SCOREBOARD</v-tab>
-        <v-tab disabled>ANALYTICS</v-tab>
+        <v-tab href="#tab-1">MATCH LOBBY</v-tab>
+        <v-tab
+          :disabled="
+            !(match.status === 'finished' || match.status === 'active')
+          "
+          href="#tab-2"
+          >SCOREBOARD<span v-if="match.status === 'active'" class="live">
+            (LIVE)</span
+          ></v-tab
+        >
+        <v-tab disabled href="#tab-3">ANALYTICS</v-tab>
       </v-tabs>
     </v-row>
-    <v-row :class="{ 'is-captain': isCaptain }">
+    <v-row v-show="tab == 'tab-1'" :class="{ 'is-captain': isCaptain }">
       <v-container fluid class="mt-3">
         <v-row>
           <v-col cols="12" sm="4" class="ma-0 pa-0">
@@ -104,7 +122,7 @@
                 :name="match.teamOne.captain.name"
                 :avatar="match.teamOne.captain.avatar"
                 :id="match.teamOne.captain._id"
-                :elo="match.teamOne.captain.elo"
+                :elo="match.teamOne.captain.stats.elo"
                 :rank="match.teamOne.captain.rank"
                 :steam-url="match.teamOne.captain.steamUrl"
                 :captain="true"
@@ -120,7 +138,7 @@
                     :name="match.teamOne.players[i].name"
                     :avatar="match.teamOne.players[i].avatar"
                     :id="match.teamOne.players[i]._id"
-                    :elo="match.teamOne.players[i].elo"
+                    :elo="match.teamOne.players[i].stats.elo"
                     :rank="match.teamOne.players[i].rank"
                     :steam-url="match.teamOne.players[i].steamUrl"
                   />
@@ -153,7 +171,7 @@
                   :name="player.name"
                   :avatar="player.avatar"
                   :id="player._id"
-                  :elo="player.elo"
+                  :elo="player.stats.elo"
                   :rank="player.rank"
                   :small="true"
                   class="player-card"
@@ -227,10 +245,16 @@
             >
               <div class="match-actions-wrapper">
                 <div v-if="match.server">
-                  <div class="mb-2">Zum Verbinden mithilfe der Konsole</div>
+                  <div class="mb-2">
+                    Zum Verbinden mithilfe der Konsole{{
+                      isPartOfMatch ? '' : ' (GOTV)'
+                    }}
+                  </div>
                   <v-text-field
-                    style="width: 333px; margin: auto"
-                    :value="`connect ${match.server.connect}`"
+                    style="width: 290px; margin: auto"
+                    :value="`connect ${
+                      isPartOfMatch ? match.server.connect : match.server.gotv
+                    }`"
                     readonly
                     dense
                     outlined
@@ -240,8 +264,10 @@
                   ></v-text-field>
                   <v-btn
                     color="success"
-                    :href="`steam://connect/${match.server.connect}`"
-                    >Verbinden</v-btn
+                    :href="`steam://connect/${
+                      isPartOfMatch ? match.server.connect : match.server.gotv
+                    }`"
+                    >{{ isPartOfMatch ? 'Verbinden' : 'Zuschauen' }}</v-btn
                   >
                 </div>
                 <div v-else>
@@ -255,7 +281,9 @@
                 <v-divider class="mt-5 mb-5"></v-divider>
                 <div>
                   <div class="mb-2">Gibt es ein Problem?</div>
-                  <v-btn color="error">Admin rufen</v-btn>
+                  <v-btn color="error" :disabled="!isPartOfMatch"
+                    >Admin rufen</v-btn
+                  >
                 </div>
               </div>
             </v-sheet>
@@ -275,7 +303,7 @@
                 :name="match.teamTwo.captain.name"
                 :avatar="match.teamTwo.captain.avatar"
                 :id="match.teamTwo.captain._id"
-                :elo="match.teamTwo.captain.elo"
+                :elo="match.teamTwo.captain.stats.elo"
                 :rank="match.teamTwo.captain.rank"
                 :steam-url="match.teamTwo.captain.steamUrl"
                 :captain="true"
@@ -286,7 +314,7 @@
                   :name="match.teamTwo.players[i].name"
                   :id="match.teamTwo.players[i]._id"
                   :avatar="match.teamTwo.players[i].avatar"
-                  :elo="match.teamTwo.players[i].elo"
+                  :elo="match.teamTwo.players[i].stats.elo"
                   :rank="match.teamTwo.players[i].rank"
                   :steam-url="match.teamTwo.players[i].steamUrl"
                 />
@@ -295,6 +323,80 @@
             </v-sheet>
           </v-col> </v-row
       ></v-container>
+    </v-row>
+    <v-row v-show="tab == 'tab-2'">
+      <v-container fluid style="margin-top: 12px">
+        <v-row>
+          <v-col cols="12" sm="4" class="pa-0 pr-0">
+            <v-data-table
+              hide-default-footer
+              :headers="scoreboardHeaders"
+              :items="scoreboardTeamOne"
+              :sort-by="['kills']"
+              sort-desc="true"
+              item-key="id"
+              class="elevation-1"
+            >
+              <template v-slot:item.avatar="{ item }">
+                <div
+                  style="
+                    border-radius: 8px;
+                    border-radius: 8px;
+                    justify-content: center;
+                    display: flex;
+                  "
+                >
+                  <img :src="item.avatar" :alt="item.name" height="36px" />
+                </div>
+              </template> </v-data-table
+          ></v-col>
+          <v-col cols="12" sm="4" class="ma-0 pt-0 pb-0" v-if="match.map">
+            <v-card class="map-card-large mb-3">
+              <v-img
+                :src="'/maps/' + match.map.key + '.jpg'"
+                aspect-ratio="1.7"
+                height="148"
+              ></v-img>
+              <div class="match-score">
+                {{ teamOneScore }} : {{ teamTwoScore }}
+              </div>
+            </v-card>
+            <v-sheet
+              style="height: calc(100% - 162px)"
+              rounded
+              class="mx-auto match-active"
+              width="100%"
+              elevation="4"
+              color="brightBackground"
+            >
+              <div class="match-actions-wrapper"></div>
+            </v-sheet>
+          </v-col>
+          <v-col cols="12" sm="4" class="ma-0 pa-0">
+            <v-data-table
+              color="blue"
+              hide-default-footer
+              :headers="scoreboardHeaders"
+              :sort-by="['kills']"
+              :items="scoreboardTeamTwo"
+              item-key="id"
+              class="elevation-1"
+            >
+              <template v-slot:item.avatar="{ item }">
+                <div
+                  style="
+                    border-radius: 8px;
+                    border-radius: 8px;
+                    justify-content: center;
+                    display: flex;
+                  "
+                >
+                  <img :src="item.avatar" :alt="item.name" height="36px" />
+                </div>
+              </template> </v-data-table
+          ></v-col>
+        </v-row>
+      </v-container>
     </v-row>
     <ErrorMessage />
     <SuccessMessage />
@@ -323,9 +425,24 @@ export default {
     return {
       dialog: false,
       countdown: new Date(),
-      match: {},
+      match: {
+        stats: []
+      },
+      tab: '#tab-1',
       defaultOptions: { animationData: animationData.default },
-      animationSpeed: 1
+      animationSpeed: 1,
+      scoreboardHeaders: [
+        {
+          text: '',
+          align: 'center',
+          value: 'avatar',
+          sortable: false
+        },
+        { text: 'Name', value: 'name' },
+        { text: 'Kills', value: 'kills', align: 'center' },
+        { text: 'Assists', value: 'assists', align: 'center' },
+        { text: 'Deaths', value: 'deaths', align: 'center' }
+      ]
     }
   },
   components: { PlayerCard, Timer, SkeletonPlayerCard, MapCard, Lottie },
@@ -337,11 +454,105 @@ export default {
       }
       return this.match.teamOne.roundsWon
     },
+    scoreboardTeamOne() {
+      const captain = this.match.teamOne.captain
+      let players = [
+        {
+          name: captain.name,
+          id: captain._id,
+          avatar: captain.avatar,
+          kills: this.statsMap[captain.csgoId]
+            ? this.statsMap[captain.csgoId].kills
+            : 0,
+          assists: this.statsMap[captain.csgoId]
+            ? this.statsMap[captain.csgoId].assists
+            : 0,
+          deaths: this.statsMap[captain.csgoId]
+            ? this.statsMap[captain.csgoId].deaths
+            : 0
+        }
+      ]
+
+      for (const player of this.match.teamOne.players) {
+        players.push({
+          name: player.name,
+          id: player._id,
+          avatar: player.avatar,
+          kills: this.statsMap[player.csgoId]
+            ? this.statsMap[player.csgoId].kills
+            : 0,
+          assists: this.statsMap[player.csgoId]
+            ? this.statsMap[player.csgoId].assists
+            : 0,
+          deaths: this.statsMap[player.csgoId]
+            ? this.statsMap[player.csgoId].deaths
+            : 0
+        })
+      }
+
+      return players
+    },
+    scoreboardTeamTwo() {
+      const captain = this.match.teamTwo.captain
+      let players = [
+        {
+          name: captain.name,
+          id: captain._id,
+          avatar: captain.avatar,
+          kills: this.statsMap[captain.csgoId]
+            ? this.statsMap[captain.csgoId].kills
+            : 0,
+          assists: this.statsMap[captain.csgoId]
+            ? this.statsMap[captain.csgoId].assists
+            : 0,
+          deaths: this.statsMap[captain.csgoId]
+            ? this.statsMap[captain.csgoId].deaths
+            : 0
+        }
+      ]
+
+      for (const player of this.match.teamTwo.players) {
+        players.push({
+          name: player.name,
+          id: player._id,
+          avatar: player.avatar,
+          kills: this.statsMap[player.csgoId]
+            ? this.statsMap[player.csgoId].kills
+            : 0,
+          assists: this.statsMap[player.csgoId]
+            ? this.statsMap[player.csgoId].assists
+            : 0,
+          deaths: this.statsMap[player.csgoId]
+            ? this.statsMap[player.csgoId].deaths
+            : 0
+        })
+      }
+
+      return players
+    },
     teamTwoScore() {
       if (this.match.teamTwo.roundsWon < 10) {
         return '0' + this.match.teamTwo.roundsWon
       }
       return this.match.teamTwo.roundsWon
+    },
+    statsMap() {
+      const map = this.match.stats.reduce((map, player) => {
+        map[player.steam_id] = player
+        return map
+      }, {})
+      return map
+    },
+    isPartOfMatch() {
+      if (!this.user || !this.user._id) {
+        return false
+      }
+
+      if (this.playersMap[this.user._id]) {
+        return true
+      }
+
+      return false
     },
     playersMap() {
       const map = this.match.players.reduce((map, player) => {
@@ -362,6 +573,9 @@ export default {
       }
       if (this.match.status === 'active') {
         return 'Warmup'
+      }
+      if (this.match.status === 'cancelled') {
+        return 'Abgebrochen'
       }
 
       return 'Beendet'
@@ -511,6 +725,15 @@ export default {
     }
   },
   sockets: {
+    PRIVATE_MATCH_SCORE_UPDATE(data) {
+      if (data.matchId !== this.matchId) {
+        return
+      }
+
+      this.match.teamOne.roundsWon = data.teamOne
+      this.match.teamTwo.roundsWon = data.teamTwo
+      this.match.stats = data.stats
+    },
     MATCH_SCORE_UPDATE(data) {
       if (data.matchId !== this.matchId) {
         return
@@ -705,8 +928,9 @@ export default {
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 4px;
-  padding-bottom: 4px;
+  padding-bottom: 0px;
   font-size: 20px;
+  line-height: 20px;
 }
 .match-team-players,
 .match-mapveto,
@@ -823,5 +1047,41 @@ h2 {
   .map-name {
     filter: brightness(70%);
   }
+}
+.match-date h2 {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 28px;
+}
+.live {
+  color: $error;
+  animation: blinker 2.5s linear infinite;
+  opacity: 0.9;
+  display: block;
+  margin-right: -10px;
+  margin-left: 8px;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0.2;
+  }
+}
+.v-data-table-header__icon.mdi-arrow-up {
+  margin-left: 3px;
+}
+.row-map {
+  background-size: cover !important;
+  background-position: center !important;
+  position: relative;
+  height: 110px;
+  width: 100%;
+  background-position-x: 0%;
+  background-position-y: 0%;
+  background-size: auto;
+  background-position-x: 0%;
+  background-position-y: 0%;
+  background-size: auto;
+  border-radius: 4px;
 }
 </style>

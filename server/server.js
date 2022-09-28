@@ -14,6 +14,7 @@ const i18n = require('i18n')
 const initMongo = require('./config/mongo')
 const path = require('path')
 const { createDefaultMapPool } = require('./createDefaultMapPool')
+const { setAdmins } = require('./setAdmins')
 
 
 // Setup express server port from ENV, default: 3001
@@ -68,5 +69,6 @@ app.listen(app.get('port'))
 // Init MongoDB
 initMongo()
 createDefaultMapPool()
+setAdmins()
 
 module.exports = app

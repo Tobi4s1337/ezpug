@@ -69,3 +69,5 @@ typings/
 .env.production
 
 .history/
+
+./public/demos

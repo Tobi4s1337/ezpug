@@ -167,8 +167,6 @@ class Queue {
   async addPlayer({ userId }) {
     try {
       this._players.push(userId)
-      console.log(this._players.length)
-      console.log(this.count)
       await updateStatus(userId, { inQueue: true })
 
       this.announceChange()

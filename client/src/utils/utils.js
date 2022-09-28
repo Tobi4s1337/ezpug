@@ -90,8 +90,15 @@ export const handleError = (error, commit, reject) => {
     store.dispatch('userLogout')
   } else {
     // Any other error
+    console.log(error.response)
+    let msg = ''
+    if(error.response && error.response.data && error.response.data.error && error.response.data.errors.msg) {
+      msg = error.response.data.errors.msg
+    } else {
+      msg = error.response.data
+    }
     errMsg = error.response
-      ? error.response.data.errors.msg
+      ? msg
       : 'SERVER_TIMEOUT_CONNECTION_ERROR'
     setTimeout(() => {
       return errMsg

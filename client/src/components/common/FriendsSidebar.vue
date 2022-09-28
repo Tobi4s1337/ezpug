@@ -33,8 +33,10 @@
             ><UserStatus :status="user.status"
           /></v-list-item-subtitle>
           <v-list-item-subtitle class="user-stats"
-            ><span class="user-rank mr-2">Rank: 13</span
-            ><span class="user-elo">Elo: 2044</span>
+            ><span class="user-rank mr-2">Rank: {{ profile.rank }}</span
+            ><span class="user-elo"
+              >Elo: {{ profile.stats ? profile.stats.elo : 0 }}</span
+            >
             <v-btn small icon class="user-settings" to="/profile"
               ><v-icon small> mdi-cog </v-icon></v-btn
             ></v-list-item-subtitle
@@ -74,10 +76,10 @@
               @context-hidden="contextMenuOpen = false"
               :name="friend.name"
               :avatar="friend.avatar"
-              steam-url="props.item.steamUrl"
+              :steam-url="friend.steamUrl"
               :id="friend._id"
               :rank="32"
-              :elo="1337"
+              :elo="friend.stats.elo"
               :status="friend.status"
             />
           </v-list>
@@ -95,10 +97,10 @@
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
               :avatar="friend.avatar"
-              steam-url="props.item.steamUrl"
+              :steam-url="friend.steamUrl"
               :id="friend._id"
               :rank="32"
-              :elo="1337"
+              :elo="friend.stats.elo"
               :status="friend.status"
             />
           </v-list>
@@ -124,10 +126,9 @@
               @context-visible="contextMenuOpen = true"
               @context-hidden="contextMenuOpen = false"
               :avatar="request.requester.avatar"
-              steam-url="props.item.steamUrl"
+              :steam-url="request.requester.steamUrl"
               :id="request.requester._id"
               :rank="32"
-              :elo="1337"
               :status="{ hidden: true }"
             />
           </v-list>
@@ -148,7 +149,6 @@
               :avatar="request.recipient.avatar"
               :id="request.recipient._id"
               :rank="32"
-              :elo="1337"
               :status="{ hidden: true }"
             />
           </v-list>
@@ -179,10 +179,10 @@
               type="FRIEND"
               :name="friend.name"
               :avatar="friend.avatar"
-              steam-url="props.item.steamUrl"
-              id="props.item._id"
+              :steam-url="friend.steamUrl"
+              :id="friend._id"
               :rank="32"
-              :elo="1337"
+              :elo="friend.stats.elo"
               :status="friend.status"
             />
           </v-list>
@@ -422,7 +422,7 @@ html {
   padding-right: 12px;
 }
 .friendlist-content {
-  min-height: 100%;
+  min-height: calc(100% - 120px);
 }
 .search-wrapper .v-input.v-text-field {
   margin-left: 12px;

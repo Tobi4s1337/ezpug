@@ -31,7 +31,7 @@
           </div>
           <div class="user-elo-wrapper">
             <div class="user-elo-title">{{ $t('stats.ELO_RATING') }}</div>
-            <div class="user-elo">2045</div>
+            <div class="user-elo">{{ elo }}</div>
           </div>
         </div>
       </v-list-item-content>

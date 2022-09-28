@@ -10,6 +10,7 @@ const getProfileFromDB = (id = '') => {
     User.findById(id, '-_id -updatedAt -createdAt', async (err, user) => {
       try {
         await itemNotFound(err, user, 'NOT_FOUND')
+        console.log(user)
         resolve(user)
       } catch (error) {
         reject(error)
